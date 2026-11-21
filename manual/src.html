@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snoop37 manual</title>
+<style>
+@font-face { font-family: "SLOOP Terminus"; src: /*FONT*/ format("truetype"); font-display: block; }
+:root {
+  --bg:#000; --s1:#0b0b0e; --s2:#1a1a1e; --s3:#36363c; --line:#232329; --dim:#76767e; --fg2:#c4c4cc; --fg:#f2f2f2;
+  --red:#ff2c34; --t1:#287cff; --t2:#1ecc70; --t3:#ffc618; --t4:#ff621a;
+  --t1d:#0e2856; --t2d:#0a4226; --t3d:#564208; --t4d:#562008;
+  --cy:#38acde; --pk:#e14bd0;
+  --font:"SLOOP Terminus", ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--fg2);font:16px/1.5 var(--font);-webkit-font-smoothing:none;font-smooth:never}
+a{color:var(--cy)}
+b,strong{color:var(--fg);font-weight:normal}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--s3)}
+.bar{display:flex;align-items:center;gap:12px;padding:8px 16px}
+.bar .name{color:var(--fg);letter-spacing:1px}
+.bar .ver{color:var(--dim);flex:1}
+.bar .ctr{color:var(--fg)}
+.menu-btn{display:none;background:none;border:1px solid var(--s3);color:var(--fg);font:inherit;padding:0 8px;cursor:pointer}
+.tabs{display:flex;gap:4px;padding:4px 12px 6px;flex-wrap:wrap;align-items:center}
+.tab{color:var(--dim);padding:0 6px;text-decoration:none;cursor:pointer}
+.tab.on{background:var(--s3);color:var(--fg)}
+.search{margin-left:auto;display:flex;align-items:center;gap:6px;color:var(--dim)}
+.search input{background:var(--s1);border:1px solid var(--s3);color:var(--fg);font:inherit;padding:0 6px;width:200px;outline:none}
+.search input:focus{border-color:var(--fg)}
+.wrap{display:grid;grid-template-columns:240px minmax(0,1fr);max-width:1240px;margin:0 auto}
+nav.side{position:sticky;top:84px;align-self:start;height:calc(100vh - 84px);overflow:auto;border-right:1px solid var(--line);padding:8px 0 40px}
+nav.side .g{color:var(--dim);padding:10px 12px 2px;font-size:14px}
+nav.side a{display:flex;gap:8px;align-items:center;padding:2px 12px;color:var(--dim);text-decoration:none}
+nav.side a .n{width:22px;height:18px;display:flex;align-items:center;justify-content:center;color:#000;font-size:14px;flex:none}
+nav.side a.on{background:var(--s2);color:var(--fg)}
+nav.side a.hide{display:none}
+main{padding:12px 24px 80px;min-width:0}
+section.ch{padding:18px 0 28px;border-bottom:1px solid var(--line)}
+section.ch.hide{display:none}
+.crumb{color:var(--dim);font-size:14px}
+h2{font-weight:normal;color:var(--fg);font-size:32px;line-height:1.1;margin:2px 0 12px;letter-spacing:1px;text-transform:uppercase}
+h3{font-weight:normal;color:var(--fg);font-size:16px;margin:22px 0 6px;text-transform:uppercase;letter-spacing:1px}
+h3::before{content:"";display:inline-block;width:10px;height:10px;background:var(--trk,var(--t1));margin-right:8px}
+p{margin:6px 0 10px}
+.lede{color:var(--fg)}
+table{border-collapse:collapse;width:100%;margin:8px 0 14px;font-size:15px}
+th{color:var(--dim);font-weight:normal;text-align:left;padding:4px 8px;border-bottom:1px solid var(--s3);text-transform:lowercase}
+td{padding:4px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td:first-child{color:var(--fg)}
+.tw{overflow-x:auto}
+.k{display:inline-block;border:1px solid var(--dim);color:var(--fg);padding:0 5px;line-height:1.25;white-space:nowrap;margin:1px 0}
+.d{display:inline-block;padding:0 5px;color:#000;line-height:1.25;white-space:nowrap}
+.d1{background:var(--t1)}.d2{background:var(--t2)}.d3{background:var(--t3)}.d4{background:var(--t4)}
+.c1{color:var(--t1)}.c2{color:var(--t2)}.c3{color:var(--t3)}.c4{color:var(--t4)}.cr{color:var(--red)}.cw{color:var(--fg)}.cd{color:var(--dim)}
+.steps{counter-reset:s;margin:8px 0 14px}
+.step{border-left:3px solid var(--t1);padding:2px 0 2px 10px;margin:0 0 10px}
+.step:nth-child(4n+2){border-color:var(--t2)}.step:nth-child(4n+3){border-color:var(--t3)}.step:nth-child(4n+4){border-color:var(--t4)}
+.step::before{counter-increment:s;content:counter(s) " ";color:var(--fg)}
+.note{border-top:1px solid var(--s3);padding:6px 0 0;margin:10px 0}
+.note .lab{color:var(--fg)}
+.warn .lab{color:var(--t4)}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:10px 0 14px}
+.tile{background:var(--s2);padding:6px 8px}
+.tile .l{color:var(--dim);font-size:14px}
+.tile .v{color:var(--fg)}
+.tile i{display:block;height:3px;margin-top:4px}
+.fig{margin:10px 0 14px}
+.fig svg{display:block;width:100%;height:auto;background:#000}
+.cap{color:var(--dim);font-size:14px;margin-top:4px}
+.shot img{display:block;max-width:100%;image-rendering:pixelated;border:1px solid var(--s3)}
+.dials{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin:8px 0 12px}
+.dial{display:flex;align-items:center;gap:8px;background:var(--s1);padding:6px}
+.dial svg{width:28px;height:28px;flex:none}
+.dial .t{font-size:14px;line-height:1.2}
+.dial .t span{display:block;color:var(--dim)}
+.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.foot{position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--s3);color:var(--dim);display:flex;justify-content:space-between;padding:4px 16px;font-size:14px;z-index:20}
+.empty{display:none;color:var(--dim);padding:40px 0}
+mark{background:var(--t3);color:#000}
+@media (max-width:820px){
+  .wrap{grid-template-columns:1fr}
+  nav.side{display:none;position:fixed;top:84px;left:0;right:0;bottom:0;height:auto;background:var(--bg);z-index:30;border:0}
+  nav.side.open{display:block}
+  .menu-btn{display:block}
+  main{padding:8px 16px 80px}
+  .search input{width:130px}
+  .tiles,.dials{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two{grid-template-columns:1fr}
+  h2{font-size:26px}
+  .bar .ver{display:none}
+  .bar .name{flex:1}
+}
+@media print{.top,.foot,nav.side{display:none}.wrap{display:block}section.ch.hide{display:block}}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="bar"><button class="menu-btn" id="menuBtn" aria-label="Chapters">≡</button><span class="name">SNOOP37 MANUAL</span><span class="ver">2.7.2 (SLOOP 2.7.1) · SMK-37 PRO / ELITE</span><span class="ctr" id="ctr">START 1/29</span></div>
+  <div class="tabs" id="tabs"><span class="search">/ <input id="q" type="search" placeholder="search" aria-label="Search the manual"></span></div>
+</div>
+<div class="wrap">
+<nav class="side" id="side"></nav>
+<main id="main">
+
+<!-- ============ START ============ -->
+<section class="ch" id="install" data-g="START" data-t="1">
+<div class="crumb">START &gt; INSTALL</div>
+<h2>Safety and install</h2>
+<p class="lede">Snoop37 turns the SMK-37 into a stand-alone groovebox: three synth tracks and a drum machine, made and sequenced on the keyboard's own chip. It is SLOOP 2.7.1 by isod89, ported to the SMK-37 by genkigenki.</p>
+<div class="shot fig"><img src="{{IMG:docs/img/banner.png}}" alt="The Snoop37 intro: a neon doghouse with a piano-key roof"></div>
+<div class="note warn"><span class="lab">NOTE</span> Unofficial firmware. Not made or supported by M-Vave. No warranty: you install it at your own risk.</div>
+<h3>Which models</h3>
+<p>SMK-37 Pro, SMK-37 Elite, MKE-P37 and Starrykey 37 Play are one keyboard under different names. The controls and this manual are the same for all of them. Each model has its own package only so that M-Vave's updater still knows the unit when you go back.</p>
+<div class="tw"><table><tr><th>model</th><th>package name</th></tr>
+<tr><td>SMK-37 Pro, Starrykey 37 Play</td><td>SMK-37 Pro_9xx</td></tr>
+<tr><td>SMK-37 Elite</td><td>SMK-37 Elite_9xx</td></tr>
+<tr><td>MKE-P37</td><td>MKE-P37_9xx</td></tr></table></div>
+<h3>Install or update</h3>
+<div class="steps">
+<div class="step">Open <a href="https://genkigenki.github.io/smk37/">genkigenki.github.io/smk37</a> in Chrome or Edge.</div>
+<div class="step">Connect the keyboard with a USB data cable, straight into the computer (no hub).</div>
+<div class="step">Press <span class="k">Connect</span>, allow MIDI, then <span class="k">Install</span>.</div>
+<div class="step">Do not unplug while the update screen is up. The keyboard restarts on the Snoop37 intro.</div>
+</div>
+<p>Updating later works the same way. Projects, presets, samples, kits and settings are kept. From a build folder you can also run <code>python3 tools/fm1_install.py build/sloop-smk37-elite.fwsc</code> (Python 3 with mido and python-rtmidi).</p>
+<h3>Back up first</h3>
+<p>Before an update or a rollback, save a backup in the web editor: <b>Projects &gt; Backup &gt; Save a backup</b> (see <a href="#rescue">Rescue</a>). For a full 1 MiB flash dump, use the chip's UBOOT mode: hold <span class="k">OCT−</span> + <span class="k">OCT+</span> for 5 s while stopped, then a JieLi UBOOT tool such as jl-uboot-tool. Keep the dump private: it holds data unique to your unit.</p>
+<div class="note warn"><span class="lab">NOTE</span> With a UBOOT tool, never write 0xC0000–0xC1FFF (factory key and pad calibration, Bluetooth pairing), 0xFF000–0xFFFFF (key_mac) or 0xF4000–0xFDFFF (stock resources). They are unique to your unit. Snoop37 itself never writes them.</div>
+<h3>Back to the M-Vave firmware</h3>
+<div class="steps">
+<div class="step">Save a backup in the editor.</div>
+<div class="step">Optional: editor <b>Settings &gt; Prepare the return to M-Vave</b>. It erases a marker so the stock firmware rebuilds its factory key and knob map (Snoop37 also does this by itself when it first stores a sample).</div>
+<div class="step">Install the official package for your model with M-Vave's M-UPGRADE, or with <code>fm1_install.py --force SMK-37_Pro_016.fwsc</code>. Close every other MIDI app first.</div>
+</div>
+<h3>If it does not start</h3>
+<p>After 2 failed starts, Snoop37 opens its USB recovery screen: install again from the web page. After a third, the chip drops into UBOOT. You can also hold <span class="k">OCT−</span> while you switch on: <span class="cw">SNOOP37 USB RESCUE</span>.</p>
+</section>
+
+<section class="ch" id="panel" data-g="START" data-t="2">
+<div class="crumb">START &gt; PANEL</div>
+<h2>Panel tour</h2>
+<div class="fig"><div class="panel" data-lit="scr:w k1:w k2:w k3:w k4:w k5:t1 k6:t2 k7:t3 k8:t4 f1:t1 f2:t2 f3:t3 f4:t4 wp:w wm:w"></div><div class="cap">Top view, drawn from a photo of the SMK-37 Pro (simplified). Knob colours show the default FM-1 layout.</div></div>
+<p>Snoop37 was first made for the M-Vave FM-1. Every SMK-37 control has the job of one FM-1 control, so the screen sometimes uses the FM-1 name. This table tells you which is which.</p>
+<h3>Knobs, faders, wheels</h3>
+<div class="tw"><table><tr><th>on the SMK-37</th><th>screen name</th><th>does</th></tr>
+<tr><td><span class="k">K1</span></td><td>MASTER</td><td>output volume (24 steps a click)</td></tr>
+<tr><td><span class="k">K2</span></td><td>SELECT</td><td>tempo, or previous / next page, visualiser style, menu section</td></tr>
+<tr><td><span class="k">K3</span></td><td>ALGORITHM</td><td>select track 1–4</td></tr>
+<tr><td><span class="k">K4</span></td><td>PRESETS</td><td>the selected track's sound, or the drum kit (opens the <a href="#pads">pad picker</a>)</td></tr>
+<tr><td><span class="k">K5</span> <span class="k">K6</span> <span class="k">K7</span> <span class="k">K8</span></td><td><span class="d d1">DIAL 1</span> <span class="d d2">DIAL 2</span> <span class="d d3">DIAL 3</span> <span class="d d4">DIAL 4</span></td><td>the four coloured dials at the bottom of the screen</td></tr>
+<tr><td>FADER 1–4</td><td>—</td><td>tracks 1–4 by bank: level, filter, reverb, delay (<a href="#faders">Faders</a>)</td></tr>
+<tr><td>PITCH wheel</td><td>—</td><td>pitch bend on the selected synth track</td></tr>
+<tr><td>MOD wheel</td><td>—</td><td>vibrato</td></tr>
+<tr><td>PEDAL jack</td><td>—</td><td>not used yet</td></tr></table></div>
+<p>In this manual, <span class="d d1">DIAL 1</span>–<span class="d d4">DIAL 4</span> means K5–K8 (or K1–K4 with the SMK knob layout, below).</p>
+<h3>Buttons</h3>
+<div class="tw"><table><tr><th>printed</th><th>screen name</th><th>tap</th><th>hold</th></tr>
+<tr><td><span class="k">SEQ PLAY</span></td><td>PLAY</td><td>start / stop</td><td>—</td></tr>
+<tr><td><span class="k">SEQ REC</span></td><td>REC</td><td>record / arm</td><td>2 s: clear track</td></tr>
+<tr><td><span class="k">PATCH</span></td><td>HOME</td><td>TRACKS screen; again: visualiser</td><td>HOME menu</td></tr>
+<tr><td><span class="k">CHORD</span></td><td>ENV</td><td>envelope pages</td><td>—</td></tr>
+<tr><td><span class="k">NOTE REPEAT</span></td><td>LFO</td><td>LFO pages</td><td>—</td></tr>
+<tr><td><span class="k">FX</span></td><td>FX</td><td>effect pages</td><td>punch-in effects</td></tr>
+<tr><td><span class="k">SCALE</span></td><td>SEL</td><td>key and chord pages</td><td>key layer (pads = piano)</td></tr>
+<tr><td><span class="k">PARA</span></td><td>EDIT</td><td>sound pages, DRUMS screen</td><td>erase layer</td></tr>
+<tr><td><span class="k">ARP</span></td><td>ARP</td><td>arpeggiator pages</td><td>note repeat (rolls)</td></tr>
+<tr><td><span class="k">SEQ</span></td><td>SEQ</td><td>step and pattern pages</td><td>step layer</td></tr>
+<tr><td><span class="k">GLOBE</span></td><td>GLO</td><td>global pages</td><td>mix layer</td></tr>
+<tr><td><span class="k">BT</span></td><td>SAVE</td><td>SONG screen, save pages</td><td>song layer</td></tr>
+<tr><td><span class="k">OCTAVE−</span> <span class="k">OCTAVE+</span></td><td>OCT− OCT+</td><td>octave down / up; both: 0</td><td>drums: ghost / hard hits</td></tr>
+<tr><td><span class="k">KNOB BANK</span></td><td>—</td><td>pin the pad sound picker open / close it</td><td>—</td></tr>
+<tr><td><span class="k">FADER BANK</span></td><td>—</td><td>fader bank screen; again: next bank</td><td>—</td></tr>
+<tr><td><span class="k">&lt;</span> <span class="k">&gt;</span></td><td>—</td><td>page back / forward; step page; visualiser style</td><td>—</td></tr></table></div>
+<p>Note: the printed names CHORD, NOTE REPEAT and SCALE do not match their Snoop37 jobs. Learn the screen names: CHORD = envelope, NOTE REPEAT = LFO, SCALE = key and chords. Snoop37 has no Bluetooth: BT is SAVE.</p>
+<h3>Keys and pads</h3>
+<div class="fig"><div class="panel" data-lit="lo:t4 mid:w hi:t4"></div></div>
+<div class="tw"><table><tr><th>part</th><th>does</th></tr>
+<tr><td>middle 27 keys, F3–G5</td><td>notes, with velocity. In held layers the 16 white keys are tiles. <span class="cw">Key 1</span> = F3 … <span class="cw">key 16</span> = G5</td></tr>
+<tr><td>lowest 5 keys, C3–E3</td><td>synth tracks: notes · drum track: C3 kick, D3 snare, E3 hat (a black key = the white key on its left)</td></tr>
+<tr><td>highest 5 keys, G#5–C6</td><td>synth tracks: notes · drum track: G#5 cowbell, A5 open hat, B5 crash, C6 ride</td></tr>
+<tr><td>16 RGB pads</td><td>drum kit or steps on the PLAY screen; tiles in held layers (<a href="#pads">Pads</a>)</td></tr></table></div>
+<div class="tw"><table><tr><th>key</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th></tr>
+<tr><td>note</td><td>F3</td><td>G3</td><td>A3</td><td>B3</td><td>C4</td><td>D4</td><td>E4</td><td>F4</td><td>G4</td><td>A4</td><td>B4</td><td>C5</td><td>D5</td><td>E5</td><td>F5</td><td>G5</td></tr></table></div>
+<p>The 11 black keys of the middle part: F#3, G#3, A#3, C#4, D#4, F#4, G#4, A#4, C#5, D#5, F#5. The "first four black keys" are F#3, G#3, A#3, C#4.</p>
+<h3>SMK knob layout</h3>
+<p>HOME menu (hold <span class="k">PATCH</span>) &gt; SCREEN &gt; <b>KNOB LAYOUT</b> = SMK moves the four dials to the left half of the knob row (K1–K4):</p>
+<div class="tw"><table><tr><th>layout</th><th>K1</th><th>K2</th><th>K3</th><th>K4</th><th>K5</th><th>K6</th><th>K7</th><th>K8</th></tr>
+<tr><td>FM-1 (default)</td><td>MASTER</td><td>SELECT</td><td>track</td><td>sound</td><td class="c1">dial 1</td><td class="c2">dial 2</td><td class="c3">dial 3</td><td class="c4">dial 4</td></tr>
+<tr><td>SMK</td><td class="c1">dial 1</td><td class="c2">dial 2</td><td class="c3">dial 3</td><td class="c4">dial 4</td><td>MASTER</td><td>SELECT</td><td>sound</td><td>track</td></tr></table></div>
+<p>The 8 knobs sit in one row above the pads, K1 on the left. They are endless, so the new layout works at once. The menu's rows also move to K1–K4.</p>
+</section>
+
+<section class="ch" id="ideas" data-g="START" data-t="3">
+<div class="crumb">START &gt; BIG IDEAS</div>
+<h2>Tracks, colours, tap and hold</h2>
+<div class="shot fig"><img src="{{IMG:docs/img/screens.png}}" alt="Snoop37 screens: the TRACKS screen, two visualisers and the SYSTEM menu"><div class="cap">The TRACKS screen, the visualiser and the HOME menu, as the keyboard shows them.</div></div>
+<h3>Four tracks</h3>
+<div class="tiles">
+<div class="tile"><div class="l">track 1</div><div class="v">synth</div><i style="background:var(--t1)"></i></div>
+<div class="tile"><div class="l">track 2</div><div class="v">synth</div><i style="background:var(--t2)"></i></div>
+<div class="tile"><div class="l">track 3</div><div class="v">synth</div><i style="background:var(--t3)"></i></div>
+<div class="tile"><div class="l">track 4</div><div class="v">drums</div><i style="background:var(--t4)"></i></div>
+</div>
+<p>The three synth tracks share 8 voices. The drum track has 16 sounds and 6 voices of its own. <span class="k">K3</span> (track) picks the track you play, record and edit, on every screen. The screen takes the colour of that track. <span class="cw">White</span> always means "what you touch". <span class="cr">Red</span> always means "recording".</p>
+<h3>Tap and hold</h3>
+<p>Every function button has two jobs.</p>
+<div class="two">
+<div class="step"><b>TAP</b>: its pages open (sound design, settings). Tap again: the next page. <span class="k">K2</span> or <span class="k">&lt;</span> <span class="k">&gt;</span> also walk the pages. Each button remembers its last page.</div>
+<div class="step"><b>HOLD</b>: a layer. While it is held, the 16 white keys, the pads and the four dials do something else. After 0.14 s the screen shows 16 tiles. Let go: back to playing.</div>
+</div>
+<p>The layers are <span class="k">FX</span> punch-in, <span class="k">PARA</span> erase, <span class="k">ARP</span> roll, <span class="k">SEQ</span> steps, <span class="k">SCALE</span> key, <span class="k">GLOBE</span> mix and <span class="k">BT</span> song. CHORD and NOTE REPEAT only open pages.</p>
+<p>Inside any layer: PLAY still starts and stops, <span class="k">K2</span> is always the tempo, and K3 / K4 wait (no jump when you let go).</p>
+<h3>Lock a layer</h3>
+<p>Hold the layer button and tap <span class="k">PATCH</span>. The layer stays open with the button let go (<span class="cw">LOCK</span> on the screen, the button blinks). Both hands are free. Any other button closes it and does only that. SEQ PLAY, SEQ REC and OCTAVE−/+ still work inside a locked layer.</p>
+<h3>Tiles on the pads</h3>
+<div class="fig"><div class="pads" data-l="1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16" data-c="w,w,w,w,w,w,w,w,w,w,w,w,w,w,w,w"></div><div class="cap">In the SEQ, FX, GLOBE and BT layers, pad n = white key n: top row 1–8, bottom row 9–16.</div></div>
+<h3>GO values</h3>
+<p>A value that does something (LOAD, SAVE, ERASE, NEW, CLRSQ, INIT) needs two clicks: turn its dial one click, <span class="cw">AGAIN: SAVE</span> shows, turn one more click within about 1.5 s.</p>
+</section>
+
+<section class="ch" id="first" data-g="START" data-t="4">
+<div class="crumb">START &gt; FIRST BEAT</div>
+<h2>Your first beat in 60 seconds</h2>
+<div class="fig"><div class="panel" data-lit="k3:t4 k4:t4 rec:r om:w op:w p1:t4 p2:t4 p3:t4 p4:t4 p5:t4 p6:t4 p7:t4 p8:t4 p9:t4 p10:t4 p11:t4 p12:t4 p13:t4 p14:t4 p15:t4 p16:t4"></div></div>
+<div class="steps">
+<div class="step">Turn <span class="k">K3</span> to track <span class="c4">4</span> (orange). Turn <span class="k">K4</span> to pick a kit: try <b>808</b> or <b>BOOMBAP</b>. The pads already play the drums.</div>
+<div class="step">Press <span class="k">SEQ REC</span> (<span class="cw">rec ready</span>). Play a beat freely on the pads or keys, at your own tempo. No click, no count-in. Hold <span class="k">OCTAVE−</span> for ghost notes, <span class="k">OCTAVE+</span> for hard hits.</div>
+<div class="step">Press <span class="k">SEQ REC</span> on the "1" after your last bar. The loop closes: its length sets the tempo, the hits snap to the grid, and it plays.</div>
+<div class="step">Press <span class="k">SEQ REC</span> again while it plays to record on top. Hold <span class="k">ARP</span> and hold the hat: a 1/16 hat roll.</div>
+<div class="step">Turn <span class="k">K3</span> to track <span class="c1">1</span> (blue, 808 BOOM), press <span class="k">SEQ REC</span>, play a bass line on the keys.</div>
+<div class="step">Hold <span class="k">SCALE</span> and press the key of your song (for example D). Select track 2, hold <span class="k">SCALE</span> and turn <span class="d d1">DIAL 1</span> to <b>7TH</b>: every white key now plays a chord of the key.</div>
+<div class="step">Hold <span class="k">FX</span> and hold a key for a punch-in effect. Still holding FX, turn <span class="d d2">DIAL 2</span> for DUST, <span class="d d3">DIAL 3</span> for DUCK.</div>
+<div class="step">A mistake? <span class="k">PARA</span> + <span class="k">OCTAVE−</span>: undo.</div>
+<div class="step">Keep it: hold <span class="k">BT</span> and press key 5 (pad 5): the loop is saved as section A.</div>
+</div>
+</section>
+
+<!-- ============ PLAY ============ -->
+<section class="ch" id="buttons" data-g="PLAY" data-t="1">
+<div class="crumb">PLAY &gt; BUTTONS</div>
+<h2>Every button, alone</h2>
+<div class="tw"><table><tr><th>control</th><th>tap / turn</th><th>hold</th></tr>
+<tr><td><span class="k">SEQ PLAY</span></td><td>start / stop all tracks (song mode: play the song). Works in every layer. Its light flashes on every beat</td><td>—</td></tr>
+<tr><td><span class="k">SEQ REC</span></td><td>playing: record now / stop recording · stopped: arm (<span class="cw">rec ready</span>) · free take: close the loop · count-in: cancel</td><td>~2 s: clear the selected track (a ring fills; let go before it is full and nothing happens)</td></tr>
+<tr><td><span class="k">BT</span></td><td>on TRACKS or DRUMS: the SONG screen · on SONG: save the song · elsewhere: the SAVE pages</td><td>song layer</td></tr>
+<tr><td><span class="k">PATCH</span></td><td>the TRACKS screen · on TRACKS: the visualiser (again closes it) · DAW mode: LOCAL on / off</td><td>0.7 s: HOME menu; hold again to leave</td></tr>
+<tr><td><span class="k">CHORD</span></td><td>ENV pages (ENV, ENV DEST)</td><td>—</td></tr>
+<tr><td><span class="k">NOTE REPEAT</span></td><td>LFO pages (LFO, LFO 2, LFO DEST)</td><td>—</td></tr>
+<tr><td><span class="k">FX</span></td><td>FX pages (FX, FILTER, SLICER, INSERT, INSERT 2, DLY, REV/CHO)</td><td>punch-in layer</td></tr>
+<tr><td><span class="k">SCALE</span></td><td>SEL pages (SEL, SEL 2)</td><td>key / chord layer</td></tr>
+<tr><td><span class="k">PARA</span></td><td>EDIT pages (EDIT 1, EDIT 2, FILTER, VOICE, VOICE 2) · on TRACKS with the drum track: the DRUMS screen · on DRUMS: next page · on the STEP page: clear the step</td><td>erase layer</td></tr>
+<tr><td><span class="k">ARP</span></td><td>ARP pages (ARP, ARP 2). Its light is on while the selected track's arpeggiator runs</td><td>note-repeat layer</td></tr>
+<tr><td><span class="k">SEQ</span></td><td>SEQ pages (STEP, PATTERN), then the SONG screen · on TRACKS with the drum track: DRUMS</td><td>step layer</td></tr>
+<tr><td><span class="k">GLOBE</span></td><td>GLO pages (GLOBAL, MASTER, SYSTEM, DRUMS, TEXTURE, TEXTURE 2, MIDI, MIDI 2, MIDI 3)</td><td>mix layer</td></tr>
+<tr><td><span class="k">OCTAVE−</span> <span class="k">OCTAVE+</span></td><td>synth track: octave −3 … +3 · both together: octave 0. Their lights show when you are off 0</td><td>drum track: ghost / hard hits while held</td></tr>
+<tr><td><span class="k">KNOB BANK</span></td><td>pins the pad sound picker open, or closes it. Lit while pinned or while K4 turns</td><td>—</td></tr>
+<tr><td><span class="k">FADER BANK</span></td><td>the fader bank screen; again: next bank A→B→C→D. Lit while up. Closes the pad picker</td><td>—</td></tr>
+<tr><td><span class="k">&lt;</span> <span class="k">&gt;</span></td><td>previous / next page (like K2, but never tempo) · SEQ held or pads on STEPS: step page · visualiser: style</td><td>—</td></tr>
+<tr><td><span class="k">K1</span> MASTER</td><td>output volume. Curve: HOME menu &gt; AUDIO &gt; LIMITER</td><td>—</td></tr>
+<tr><td><span class="k">K2</span> SELECT</td><td>on TRACKS, in a layer and on the REC screen: tempo · on a page: previous / next page · DRUMS: next page · visualiser: style · menu: section · fader bank screen: bank</td><td>—</td></tr>
+<tr><td><span class="k">K3</span> track</td><td>select track 1–4 (waits inside a layer; not during a free take, on SONG or in the menu)</td><td>—</td></tr>
+<tr><td><span class="k">K4</span> sound</td><td>the selected track's sound (favourites first, then factory sounds by kind, then your user presets) · drum track: the kit · shows the pad picker</td><td>—</td></tr>
+<tr><td><span class="k">K5</span>–<span class="k">K8</span></td><td>dials 1–4 on the screen</td><td>—</td></tr></table></div>
+<h3>Two-button combos</h3>
+<div class="tw"><table><tr><th>do</th><th>result</th></tr>
+<tr><td><span class="k">KNOB BANK</span> + <span class="k">FADER BANK</span></td><td>pads on the PLAY screen: DRUM KIT ↔ STEPS (DAW mode: the pads' bank A / B)</td></tr>
+<tr><td><span class="k">&lt;</span> + <span class="k">&gt;</span></td><td>SYNTH ↔ DAW mode (press the second while the first is held)</td></tr>
+<tr><td><span class="k">PATCH</span> held + <span class="k">OCTAVE+</span></td><td>DAW mode: the DAW map editor</td></tr>
+<tr><td>any layer + <span class="k">PATCH</span></td><td>lock the layer open</td></tr>
+<tr><td><span class="k">PARA</span> + <span class="k">OCTAVE−</span> / <span class="k">OCTAVE+</span></td><td>undo / redo</td></tr>
+<tr><td><span class="k">FX</span> + <span class="k">OCTAVE−</span> / <span class="k">OCTAVE+</span></td><td>reverb throw / echo throw while held</td></tr>
+<tr><td><span class="k">GLOBE</span> + F#3</td><td>MIDI LEARN on / off</td></tr></table></div>
+<h3>At power-on and while stopped</h3>
+<div class="tw"><table><tr><th>do</th><th>result</th></tr>
+<tr><td><span class="k">OCTAVE−</span> held while switching on</td><td>USB rescue: install again from the browser</td></tr>
+<tr><td><span class="k">OCTAVE−</span> + <span class="k">OCTAVE+</span> held while switching on</td><td>hardware calibration (buttons, knobs, wheels)</td></tr>
+<tr><td><span class="k">OCTAVE−</span> + <span class="k">OCTAVE+</span> held 5 s, stopped</td><td>update mode (UBOOT). A countdown shows from 2 s; let go to cancel. Your work is saved first</td></tr>
+<tr><td>a key, pad or button during the intro</td><td>skips the intro</td></tr></table></div>
+</section>
+
+<section class="ch" id="keys" data-g="PLAY" data-t="2">
+<div class="crumb">PLAY &gt; KEYS</div>
+<h2>Keys and velocity</h2>
+<div class="fig"><div class="panel" data-lit="lo:t1 mid:t1 hi:t1 om:w op:w"></div></div>
+<h3>Synth tracks (1–3)</h3>
+<p>All 37 keys play the selected track. The notes always go out on USB MIDI (and the TRS jack) on the track's channel. <span class="k">OCTAVE−</span> / <span class="k">OCTAVE+</span>: octave −3 … +3; both together: 0.</p>
+<div class="tw"><table><tr><th>KEYS</th><th>CHORD</th><th>the keys play</th></tr>
+<tr><td>OFF</td><td>OFF</td><td>every key chromatic (default)</td></tr>
+<tr><td>SNAP</td><td>OFF</td><td>every key, rounded down to the scale</td></tr>
+<tr><td>WHITE</td><td>OFF</td><td>the white keys walk the scale from C4 (C4 = the root); black keys are silent</td></tr>
+<tr><td>any</td><td>on</td><td>white keys play chords of the scale (C4 = chord I); black keys change the chord (<a href="#chords">CHORD+</a>)</td></tr></table></div>
+<p>The GM KIT sound is the exception: the lowest key is a kick, no scale.</p>
+<h3>Drum track (4)</h3>
+<p>The 16 white keys F3–G5 play the 16 drum sounds (<a href="#drums">Drum track</a>). A black key plays the sound of the white key on its left: two fingers on one sound for fast rolls. The outer keys add C3 kick, D3 snare, E3 hat, G#5 cowbell, A5 open hat, B5 crash, C6 ride. Hold <span class="k">OCTAVE−</span> for ghost hits, <span class="k">OCTAVE+</span> for hard hits.</p>
+<h3>Key velocity</h3>
+<p>HOME menu (hold <span class="k">PATCH</span>) &gt; PLAY &gt; <b>KEY VELOCITY</b> (K5) sets how the 37 keys and the 16 pads play. It changes the notes, their MIDI out and the drum levels. OCTAVE−/+ held still play ghost / hard drums.</p>
+<div class="tw"><table><tr><th>setting</th><th>the notes play</th></tr>
+<tr><td>DYNAMIC (default)</td><td>as played (the unit's factory velocity curves)</td></tr>
+<tr><td>SOFT</td><td>louder for a light touch (32 → 56, 64 → 96)</td></tr>
+<tr><td>HARD</td><td>loud needs a hard hit (64 → 32, 100 → 78)</td></tr>
+<tr><td>FIXED 64</td><td>always 64 (drums: soft)</td></tr>
+<tr><td>FIXED 100</td><td>always 100, as the FM-1 (drums: normal)</td></tr>
+<tr><td>FIXED 127</td><td>always 127 (drums: hard)</td></tr></table></div>
+<h3>Drum levels and accents</h3>
+<p>Every drum hit has one of four levels: <b>GHOST</b>, <b>SOFT</b>, <b>NORM</b>, <b>HARD</b>. They come from the velocity, or from OCTAVE−/+ while you play, or later from the step sequencer. On synth tracks a step can carry a velocity (1–127) and an accent.</p>
+</section>
+
+<section class="ch" id="pads" data-g="PLAY" data-t="3">
+<div class="crumb">PLAY &gt; PADS</div>
+<h2>The 16 pads</h2>
+<p>The pads have velocity and RGB light. What they do depends on the screen and on the layer you hold.</p>
+<h3>Drum kit (default)</h3>
+<div class="fig"><div class="pads" data-l="SNARE 2|LOW TOM|HI TOM|CRASH|RIDE|SHAKER|CONGA|COWBELL|KICK|KICK 2|SNARE|CLAP|HAT|OPEN HAT|PEDAL HAT|RIM" data-c="t4,t4,t4,t4,t4,t4,t4,t4,t4,t4,t4,t4,t4,t4,t4,t4"></div><div class="cap">DRUM KIT: the bottom row is drum sounds 1–8 (keys F3–F4), the top row sounds 9–16 (keys G4–G5). Low sounds sit at the bottom.</div></div>
+<p>On the PLAY screen each pad plays a drum sound with velocity, whatever track is selected. So the keys play a synth and the pads play the drums. While you record, pad hits go into the drum track. Pads are orange: dim, bright while they sound.</p>
+<h3>Steps</h3>
+<div class="fig"><div class="pads" data-l="1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16" data-c="t1,s,s,t1,s,s,t1,s,w,s,t1,s,s,t1,s,s"></div><div class="cap">STEPS: set steps in the track colour, empty steps dim white, the playhead white.</div></div>
+<p>Press <span class="k">KNOB BANK</span> + <span class="k">FADER BANK</span> to switch the pads to <b>STEPS</b>, and again to go back. The pads show the selected track's 16 steps of the current page in reading order (top row 1–8, bottom row 9–16). Tap a pad to set or clear a step. On the drum track a new step uses the sound you played last. <span class="k">&lt;</span> <span class="k">&gt;</span> change the step page (1–16, 17–32…).</p>
+<h3>In held layers</h3>
+<div class="tw"><table><tr><th>layer held</th><th>the pads</th></tr>
+<tr><td><span class="k">SEQ</span></td><td>steps 1–16 of the page (pad n = key n)</td></tr>
+<tr><td><span class="k">FX</span></td><td>the 16 punch-in effects of the white keys</td></tr>
+<tr><td><span class="k">GLOBE</span></td><td>mix tiles: 1–4 mute, 5–8 solo, 9 fill, 10 fill bar, 16 tap</td></tr>
+<tr><td><span class="k">BT</span></td><td>song tiles: 1–4 play A–D, 5–8 save A–D (used green, free white), 13 loop/song, 14 SONG REC, 16 SONG screen</td></tr>
+<tr><td><span class="k">SCALE</span></td><td>a little piano: top row C4 D4 E4 F4 G4 A4 B4 C5, bottom row the black keys under them. The scale is green, its root brighter</td></tr>
+<tr><td><span class="k">PARA</span>, <span class="k">ARP</span></td><td>as in DRUM KIT: bottom row keys 1–8, top row keys 9–16 (erase or roll that sound or note)</td></tr></table></div>
+<div class="fig"><div class="pads" data-l="C4|D4|E4|F4|G4|A4|B4|C5|C#4|D#4| |F#4|G#4|A#4| |C#5" data-c="t2,t2,t2,w,t2,t2,w,t2,w,w,o,w,w,w,o,w"></div><div class="cap">SCALE held: the pads as a piano (here C major pentatonic: scale notes green).</div></div>
+<h3>Pad sound picker</h3>
+<div class="fig"><div class="panel" data-lit="k4:t3 kb:t3 lt:w gt:w p1:t3 p2:t3 p3:t3 p4:t3 p5:t3 p6:t3 p7:t3 p8:t3 p9:t3 p10:t3 p11:t3 p12:t3 p13:t3 p14:t3 p15:t3 p16:t3"></div></div>
+<div class="steps">
+<div class="step">Turn <span class="k">K4</span> (K7 with the SMK layout). The pads and the screen (8 × 2) show 16 sounds of the selected track's kind; on the drum track, the kits.</div>
+<div class="step">Tap a pad: it loads that sound and plays a short preview.</div>
+<div class="step"><span class="k">&lt;</span> <span class="k">&gt;</span> step through the pages: the PRESETS order, 16 a page, then your user presets.</div>
+<div class="step">It closes by itself a moment after the last turn. <span class="k">KNOB BANK</span> pins it open (and closes it again). <span class="k">FADER BANK</span> closes it.</div>
+</div>
+<h3>Pad light</h3>
+<p>HOME menu &gt; LIGHTS &gt; <b>PAD LIGHT</b> (K8): 100 % (default), 75 %, 50 % or 25 %. Dim states keep most of their light, so even at 25 % an empty step is still plain to see.</p>
+</section>
+
+<section class="ch" id="faders" data-g="PLAY" data-t="4">
+<div class="crumb">PLAY &gt; FADERS</div>
+<h2>Faders and banks</h2>
+<div class="fig"><div class="panel" data-lit="f1:t1 f2:t2 f3:t3 f4:t4 fb:t3 k2:w lt:w gt:w"></div></div>
+<div class="tiles">
+<div class="tile"><div class="l">bank A</div><div class="v">LEVEL</div><i style="background:var(--t1)"></i></div>
+<div class="tile"><div class="l">bank B</div><div class="v">FILTER</div><i style="background:var(--t2)"></i></div>
+<div class="tile"><div class="l">bank C</div><div class="v">REVERB</div><i style="background:var(--t3)"></i></div>
+<div class="tile"><div class="l">bank D</div><div class="v">DELAY</div><i style="background:var(--t4)"></i></div>
+</div>
+<p>Fader 1–3 set synth tracks 1–3. Fader 4 sets the drum track. Bank B is a one-fader filter: low-pass at the bottom, open in the middle, high-pass at the top.</p>
+<div class="steps">
+<div class="step">Press <span class="k">FADER BANK</span>. A screen shows the four banks and what each fader sets.</div>
+<div class="step">Press it again, turn <span class="k">K2</span>, or press <span class="k">&lt;</span> <span class="k">&gt;</span> to pick the bank.</div>
+<div class="step">Move a fader.</div>
+</div>
+<div class="note"><span class="lab">TIP</span> A fader takes over only once you move it, so changing the bank never makes a value jump.</div>
+<div class="note warn"><span class="lab">NOTE</span> The screen closes after 4 s, or with PATCH. Only one bank screen is up at a time: FADER BANK and the pad picker close each other.</div>
+</section>
+
+<section class="ch" id="wheels" data-g="PLAY" data-t="5">
+<div class="crumb">PLAY &gt; WHEELS</div>
+<h2>Pitch and mod wheels</h2>
+<div class="fig"><div class="panel" data-lit="wp:t1 wm:t2"></div></div>
+<div class="tw"><table><tr><th>wheel</th><th>does</th></tr>
+<tr><td>PITCH</td><td>pitch bend on the selected synth track. Range: HOME menu &gt; PLAY &gt; <b>BEND UP</b> (K6) and <b>BEND DOWN</b> (K7): OFF, 1, 2, 3, 4, 5, 7 or 12 semitones each way (default 7 / 7). Example: +2 up, −12 down</td></tr>
+<tr><td>MOD</td><td>vibrato at 10 Hz, up to ±1 semitone (up = more)</td></tr></table></div>
+<p>Pitch bend from MIDI IN (USB) has its own range: GLO &gt; MIDI 2 &gt; BEND. In DAW mode the wheels send pitch bend and CC 1.</p>
+<h3>Teach the wheels</h3>
+<p>The wheels calibrate themselves. For the full range on the full travel, teach them: hold <span class="k">OCTAVE−</span> + <span class="k">OCTAVE+</span> while switching on (or HOME menu &gt; SYSTEM &gt; HARDWARE CALIBRATION). After the buttons and knobs, the screen asks, and <span class="k">OCTAVE+</span> takes each step:</p>
+<div class="steps">
+<div class="step">PITCH WHEEL, LET IT REST (its noise sets the dead band)</div>
+<div class="step">PITCH WHEEL, FULL DOWN (hold it there)</div>
+<div class="step">PITCH WHEEL, FULL UP</div>
+<div class="step">MOD WHEEL, AT THE BOTTOM</div>
+<div class="step">MOD WHEEL, FULL UP</div>
+</div>
+<p>30 s without OCTAVE+, or too little travel, keeps the old setup.</p>
+</section>
+
+<section class="ch" id="drums" data-g="PLAY" data-t="6">
+<div class="crumb">PLAY &gt; DRUM TRACK</div>
+<h2>The drum track</h2>
+<h3>The 16 sounds</h3>
+<div class="tw"><table><tr><th>key</th><th>sound</th><th>key</th><th>sound</th><th>key</th><th>sound</th><th>key</th><th>sound</th></tr>
+<tr><td>1 F3</td><td>KICK</td><td>5 C4</td><td>HAT</td><td>9 G4</td><td>SNARE 2</td><td>13 D5</td><td>RIDE</td></tr>
+<tr><td>2 G3</td><td>KICK 2</td><td>6 D4</td><td>OPEN HAT</td><td>10 A4</td><td>LOW TOM</td><td>14 E5</td><td>SHAKER</td></tr>
+<tr><td>3 A3</td><td>SNARE</td><td>7 E4</td><td>PEDAL HAT</td><td>11 B4</td><td>HI TOM</td><td>15 F5</td><td>CONGA</td></tr>
+<tr><td>4 B3</td><td>CLAP</td><td>8 F4</td><td>RIM</td><td>12 C5</td><td>CRASH</td><td>16 G5</td><td>COWBELL</td></tr></table></div>
+<ul>
+<li><b>Levels</b>: GHOST, SOFT, NORM, HARD. Softer hits are darker as well as quieter.</li>
+<li><b>Ratchets</b>: a hit can repeat x1–x4 inside its step (ARP rolls record them; SEQ + step + DIAL 3 sets them).</li>
+<li><b>Choke</b>: the closed hat and the pedal hat cut the open hat.</li>
+</ul>
+<h3>Kits</h3>
+<p><span class="k">K4</span> on the drum track (or DIAL 1 on the DRUMS kit page) picks the kit. Every kit is level-matched. Changing the kit never touches the pattern.</p>
+<div class="tw"><table><tr><th>#</th><th>kits</th></tr>
+<tr><td>1–5</td><td>ACOUSTIC (sampled studio kit) and DEEP, TIGHT, BRIGHT, DUST</td></tr>
+<tr><td>6–37</td><td>808, 909, 606, 80S, VINTAGE, TRAP, DRILL, BOOMBAP, LO-FI, PHONK, HOUSE, D.HOUSE, TECHNO, MINIMAL, ELECTRO, DISCO, GARAGE, JUNGLE, DUBSTEP, DEMBOW, AMAPIANO, AFRO, LATIN, TRIBAL, SYNTHWV, CHIP, ARCADE, GLITCH, INDUSTR, HYPER, AMBIENT, JAZZ (synthesised)</td></tr>
+<tr><td>38–41</td><td>USR1–USR4: your own kit in one sample slot (about 7.4 s)</td></tr>
+<tr><td>42</td><td>USR3+4: your own big kit over two slots (about 15 s)</td></tr>
+<tr><td>43–46</td><td>SYN1–SYN4: your own synthesised kits (editor's Drum synth page)</td></tr></table></div>
+<h3>The DRUMS screen</h3>
+<p>With the drum track selected, tap <span class="k">PARA</span> or <span class="k">SEQ</span> on the TRACKS screen. Three pages: grid, kit, sound. PARA / SEQ tapped go to the next page; <span class="k">K2</span> walks them both ways.</p>
+<p><b>Grid page</b>: the 16 sounds × 16 steps, levels as shades, ratchets as notches.</p>
+<div class="dials" data-d="sound|step|hit|level" data-s="picks the lane (you hear it)|moves to a step|right: set NORM hit · left: clear|GHOST SOFT NORM HARD"></div>
+<div class="tw"><table><tr><td>white keys / pads</td><td>the 16 steps of the sound DIAL 1 picks: press to set (you hear it), again to clear</td></tr>
+<tr><td>first four black keys</td><td>the step page: 1–16, 17–32, 33–48, 49–64</td></tr>
+<tr><td><span class="k">K4</span></td><td>the kit</td></tr>
+<tr><td><span class="k">BT</span> / <span class="k">PATCH</span></td><td>the SONG screen / back to TRACKS</td></tr></table></div>
+<p><b>Kit page</b>: 16 pads on the screen flash on every hit; the keys play them.</p>
+<div class="dials" data-d="kit|level|reverb|pan" data-s="the drum kit|drum track level|drum reverb send|drum track pan"></div>
+<p><b>Sound page</b>: tune and shorten each of the 16 sounds, on every kit. Play a key (or turn DIAL 1) to pick the sound. A changed sound shows a small square.</p>
+<div class="dials" data-d="sound|tune|decay|level" data-s="you hear it|−8 … +7 semitones|−4 short … 0 … +3 long|drum track level"></div>
+<p>On synthesised kits DECAY changes the sound itself; on sampled kits it can only shorten it. The settings are kept with the project and with each section. NEW sets them back to 0. While the song plays in song mode, the grid's hit and level dials wait (<span class="cw">STOP THE SONG FIRST</span>).</p>
+</section>
+
+<!-- ============ MAKE ============ -->
+<section class="ch" id="rec" data-g="MAKE" data-t="1">
+<div class="crumb">MAKE &gt; RECORDING</div>
+<h2>Recording</h2>
+<div class="fig"><div class="panel" data-lit="rec:r play:w k3:w k5:t1 k6:t2 k7:t3 k8:t4"></div></div>
+<p>Snoop37 records live and layers every pass on top of the last (overdub). Notes go to the nearest step as you heard them: the ~12 ms between a key and its sound are taken back. Chords are kept on POLY tracks (up to 4 notes a step); MONO, LEGATO and UNISON sounds record one note at a time. Held notes become ties.</p>
+<h3>What SEQ REC does</h3>
+<div class="tw"><table><tr><th>when</th><th>SEQ REC does</th><th>then</th></tr>
+<tr><td>playing</td><td>records the selected track at once</td><td>REC again stops recording; the loop plays on</td></tr>
+<tr><td>stopped, project with notes</td><td>arms (<span class="cw">rec ready</span>, REC light blinks)</td><td>your first note starts the loop and is step 1; PLAY starts it too</td></tr>
+<tr><td>stopped, empty project</td><td>arms (<span class="cw">rec ready · play freely</span>)</td><td>a free take, or with MODE tempo, as above</td></tr></table></div>
+<p>REC again while armed disarms it. While recording, the REC light is solid and the track shows a red <span class="cr">rec</span>. Turn <span class="k">K3</span> while recording and the take moves to the next track without stopping. In song mode, REC waits until the song is stopped.</p>
+<h3>The REC screen (armed, before the first note)</h3>
+<div class="dials" data-d="mode|length|start|quant" data-s="free · tempo (empty project only)|1, 2 or 4 bars|note · count|on · off"></div>
+<ul>
+<li><b>mode</b>: free = a free take, the tempo follows you · tempo = record at the tempo set (K2).</li>
+<li><b>start</b>: note = your first note starts the loop · count = press PLAY, one bar of clicks (4 3 2 1), then recording starts.</li>
+<li><b>quant off</b>: a note still goes into the nearest step, and how far off the grid you played it becomes the step's nudge. The pattern keeps your groove and stays editable.</li>
+</ul>
+<p>During a count-in, REC cancels it and PLAY goes back to <span class="cw">rec ready</span>. K2 sets the tempo on this screen.</p>
+<h3>Free take</h3>
+<div class="steps">
+<div class="step">On an empty project, press REC and play freely. The screen shows the seconds and the loop it would make now (<span class="cw">2 bars · 92 bpm</span>).</div>
+<div class="step">Press REC on the "1" after your last bar. Snoop37 picks 1, 2 or 4 bars at the nearest tempo, writes your notes and plays the loop. All four tracks take that length.</div>
+<div class="step">PLAY during a free take drops it. A take closes by itself after 24 s.</div>
+</div>
+<h3>Metronome and swing</h3>
+<ul>
+<li>The PLAY light flashes on every beat: a silent metronome.</li>
+<li>Audible click: GLO &gt; GLOBAL &gt; CLICK = OFF, REC (only while recording) or ON. Its level follows GLO &gt; DRUMS &gt; LVL. It is never recorded. The count-in always clicks.</li>
+<li>Swing 0–100: TRACKS screen DIAL 1 or GLO &gt; GLOBAL &gt; SWING for all tracks; SEQ + DIAL 3 per track (adds to the global). Triplets are never swung.</li>
+</ul>
+<h3>What gets recorded</h3>
+<ul>
+<li>Synth tracks: notes and chords with their lengths, ties, ARP rolls as ratchets, CHORD+ chords as they sound.</li>
+<li>Drum track: hits with their levels, ARP rolls as ratchets. Pad hits on the DRUM KIT pads too.</li>
+<li>Never recorded: punch-in effects, the click, notes played in a layer that uses the keys (FX, SEQ, GLOBE…).</li>
+</ul>
+<h3>Over held notes</h3>
+<p>On a POLY track, a note you record while held notes of the pattern still ring no longer cuts them. Up to 4 notes sound at once on a track. Entering steps by hand (SEQ + key) still replaces what plays.</p>
+<h3>With a MIDI keyboard</h3>
+<p>REC records the selected track. A keyboard on track 1, 2 or 3's channel always plays that track. Set it to channel 4 (or any free channel) to play and record the selected track. If your keyboard plays another track, the screen says <span class="cw">MIDI PLAYS TRACK n</span>.</p>
+</section>
+
+<section class="ch" id="layers" data-g="MAKE" data-t="2">
+<div class="crumb">MAKE &gt; LAYERS</div>
+<h2>The seven layers</h2>
+<div class="tw"><table><tr><th>hold</th><th>keys / pads</th><th class="c1">dial 1</th><th class="c2">dial 2</th><th class="c3">dial 3</th><th class="c4">dial 4</th></tr>
+<tr><td><span class="k">FX</span></td><td>punch-in effect while held</td><td>master FILTER</td><td>DUST</td><td>DUCK</td><td>track FILTER</td></tr>
+<tr><td><span class="k">PARA</span></td><td>erase that sound / note</td><td>SHIFT</td><td>LENGTH ×2 / ½</td><td>TRANSPOSE</td><td>—</td></tr>
+<tr><td><span class="k">ARP</span></td><td>note repeat on the grid</td><td>RATE</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td><span class="k">SEQ</span></td><td>steps 1–16 of the page</td><td>SOUND / NOTE</td><td>DIV</td><td>SWING</td><td>LENGTH</td></tr>
+<tr><td><span class="k">SCALE</span></td><td>key of the song</td><td>CHORD</td><td>SCALE</td><td>KEYS</td><td>TRANSPOSE</td></tr>
+<tr><td><span class="k">GLOBE</span></td><td>1–4 mute · 5–8 solo · 9 fill · 10 fill bar · 16 tap</td><td>level 1</td><td>level 2</td><td>level 3</td><td>level 4</td></tr>
+<tr><td><span class="k">BT</span></td><td>1–4 play A–D · 5–8 save A–D · 13 loop/song · 14 SONG REC · 16 SONG</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></table></div>
+<p>While a layer is held (and always on the drum track) keys 1, 5, 9 and 13 glow dimly: the first key of each row of tiles.</p>
+
+<h3>FX: punch</h3>
+<div class="fig"><div class="pads" data-l="LOOP 1/4|LOOP 1/8|LOOP 1/16|LOOP 1/32|STUTTER|REVERSE|TAPE STOP|HALF SPD|LP SWEEP|HP SWEEP|PHONE|CRUSH|ALIAS|GATE|ECHO|WOBBLE" data-c="t1,t1,t1,t1,t1,t1,t1,t1,t2,t2,t2,t2,t2,t2,t2,t2"></div><div class="cap">FX held: pads = the 16 white-key effects. The black keys add 11 more (<a href="#fx">Effects</a>).</div></div>
+<div class="tw"><table><tr><td>FX + key or pad</td><td>that punch-in effect on the whole mix while held</td></tr>
+<tr><td>FX + DIAL 1</td><td>master FILTER: left low-pass, right high-pass, centre off</td></tr>
+<tr><td>FX + DIAL 2</td><td>master DUST (old sampler and vinyl)</td></tr>
+<tr><td>FX + DIAL 3</td><td>master DUCK (sidechain pump from the kick)</td></tr>
+<tr><td>FX + DIAL 4</td><td>TRK FILT: the same filter on the selected track only (drums too)</td></tr>
+<tr><td>FX + OCTAVE− (held)</td><td>REV THROW: every reverb send goes full while held. Nothing is saved</td></tr>
+<tr><td>FX + OCTAVE+ (held)</td><td>ECHO THROW: every delay send full, feedback at least 70 %. Both: both throws</td></tr>
+<tr><td>FX + PATCH</td><td>lock the FX layer open</td></tr></table></div>
+
+<h3>PARA: erase</h3>
+<div class="tw"><table><tr><td>PARA + key, playing</td><td>erases that sound (drums) or note (synths) from every step the playhead passes while you hold it. <span class="cw">ERASED</span> flashes</td></tr>
+<tr><td>PARA + key, stopped</td><td>erases that sound / note from the whole pattern</td></tr>
+<tr><td>PARA + DIAL 1</td><td>SHIFT: every step one later / earlier</td></tr>
+<tr><td>PARA + DIAL 2</td><td>LENGTH: right ×2 (pattern copied after itself, up to 64 steps), left ½</td></tr>
+<tr><td>PARA + DIAL 3</td><td>TRANSPOSE every note a semitone up / down (synth tracks)</td></tr>
+<tr><td>PARA + OCTAVE− / OCTAVE+</td><td>undo / redo</td></tr>
+<tr><td>PARA + a black key (drum track)</td><td>MUTE mode: the white keys mute / unmute their sound live, without erasing (muted sounds show <span class="cr">OFF</span>). A black key again goes back to erasing. MUTE mode stays when you let go of PARA</td></tr></table></div>
+<p>All dial turns of one PARA hold count as one change for undo. Drum mutes are a performance tool: a loaded or new project starts with every sound on.</p>
+
+<h3>ARP: roll</h3>
+<div class="tw"><table><tr><td>ARP + key (held)</td><td>the key repeats on the grid at the RATE, locked to tempo and swing</td></tr>
+<tr><td>ARP + DIAL 1</td><td>RATE: 1/8, 1/16, 1/32, 32T, 1/64 (also GLO &gt; MASTER &gt; ROLL)</td></tr>
+<tr><td>ARP + key + OCTAVE− / +</td><td>drum track: ghost / hard rolls</td></tr></table></div>
+<p>Rolls record as ratchets and ignore fills. The arpeggiator is something else: tap ARP for its pages.</p>
+
+<h3>SEQ: steps</h3>
+<div class="fig"><div class="panel" data-lit="seq:t1 p1:t1 p5:t1 p9:t1 p13:t1 k5:t1 k6:t2 k7:t3 k8:t4 lt:w gt:w"></div></div>
+<p>The 16 white keys (and pads) are the 16 steps of the page; the lit ones play.</p>
+<div class="tw"><table><tr><td>SEQ + empty step</td><td>sets it: drums with the sound shown (DIAL 1, or the last pad you hit); synths with the note or chord you played last</td></tr>
+<tr><td>SEQ + set step (tap)</td><td>clears it (with its nudge, locks and fill condition)</td></tr>
+<tr><td>SEQ + several steps held</td><td>edit them together</td></tr>
+<tr><td>SEQ + first four black keys, OCTAVE−/+, or &lt; &gt;</td><td>step page: 1–16, 17–32, 33–48, 49–64</td></tr>
+<tr><td>SEQ + DIAL 1 / 2 / 3 / 4</td><td>sound or note to set / DIV / track SWING / LENGTH 1–64</td></tr>
+<tr><td>SEQ + step + DIAL 1</td><td>drums: which sound LEVEL and RATCHET edit · synths: the step's note (a chord moves together)</td></tr>
+<tr><td>SEQ + step + DIAL 2</td><td>drums: LEVEL · synths: VEL 1–127</td></tr>
+<tr><td>SEQ + step + DIAL 3</td><td>RATCHET x1–x4</td></tr>
+<tr><td>SEQ + step + DIAL 4</td><td>NUDGE −32 … +31 (1/64 of a step)</td></tr>
+<tr><td>SEQ + step + K4</td><td>parameter lock on that step</td></tr>
+<tr><td>SEQ + step + K3</td><td>which parameter the lock is on</td></tr>
+<tr><td>SEQ + step + OCTAVE+</td><td>fill condition: normal → FILL ONLY → NO FILL</td></tr>
+<tr><td>SEQ + step + OCTAVE−</td><td>clears nudge, locks and fill condition</td></tr></table></div>
+<p>A held step you changed with a dial is kept when you let go. Only a plain tap clears.</p>
+
+<h3>SCALE: key and chords</h3>
+<div class="tw"><table><tr><td>SCALE + any key or pad</td><td>key of the song: the root of all three synth tracks (<span class="cw">KEY D</span>)</td></tr>
+<tr><td>SCALE + DIAL 1</td><td>CHORD of the selected track: OFF, TRIAD, 7TH, 9TH, SUS4, POWER</td></tr>
+<tr><td>SCALE + DIAL 2</td><td>SCALE of all three synth tracks (16 scales)</td></tr>
+<tr><td>SCALE + DIAL 3</td><td>KEYS: OFF, SNAP, WHITE</td></tr>
+<tr><td>SCALE + DIAL 4</td><td>TRANSPOSE the selected track ±24 semitones</td></tr></table></div>
+
+<h3>GLOBE: mix</h3>
+<div class="fig"><div class="pads" data-l="MUTE 1|MUTE 2|MUTE 3|MUTE 4|SOLO 1|SOLO 2|SOLO 3|SOLO 4|FILL|FILL BAR| | | | | |TAP" data-c="t1,t2,t3,t4,t1,t2,t3,t4,w,w,o,o,o,o,o,w"></div></div>
+<div class="tw"><table><tr><td>GLOBE + 1–4</td><td>mute / unmute track 1–4 (fades in a few ms; the pattern runs on)</td></tr>
+<tr><td>GLOBE + 5–8</td><td>solo track 1–4 (several solos add up)</td></tr>
+<tr><td>GLOBE + 9 (held)</td><td>fill while held</td></tr>
+<tr><td>GLOBE + 10</td><td>fill bar: the whole next bar is a fill (again before the bar: cancel)</td></tr>
+<tr><td>GLOBE + 16</td><td>tap tempo (two taps or more)</td></tr>
+<tr><td>GLOBE + F#3</td><td>MIDI LEARN on / off</td></tr>
+<tr><td>GLOBE + DIAL 1–4</td><td>levels of tracks 1–4</td></tr>
+<tr><td>GLOBE + K2</td><td>tempo (also inside the visualiser)</td></tr></table></div>
+
+<h3>BT: song</h3>
+<div class="fig"><div class="pads" data-l="PLAY A|PLAY B|PLAY C|PLAY D|SAVE A|SAVE B|SAVE C|SAVE D| | | | |LOOP/SONG|SONG REC| |SONG" data-c="t1,t1,t1,t1,t2,t2,w,w,o,o,o,o,w,r,o,w"></div><div class="cap">Used sections green, free ones white.</div></div>
+<div class="tw"><table><tr><td>BT + 1–4</td><td>play section A–D: playing, from the next bar; stopped, at once</td></tr>
+<tr><td>BT + several of 1–4 tapped</td><td>quick chain (A B B C…, up to 8), plays round and round when you let go</td></tr>
+<tr><td>BT + 5–8</td><td>save the loop into A–D (over a used one: press again within 3 s)</td></tr>
+<tr><td>BT + 13</td><td>loop / song mode</td></tr>
+<tr><td>BT + 14</td><td>SONG REC from the next bar; again (or STOP) to end</td></tr>
+<tr><td>BT + 16</td><td>the SONG screen</td></tr></table></div>
+</section>
+
+<section class="ch" id="seq" data-g="MAKE" data-t="3">
+<div class="crumb">MAKE &gt; STEP SEQUENCER</div>
+<h2>Steps, nudge, locks, fills</h2>
+<p>Each track has up to 64 steps with its own length (1–64) and division. Tracks of different lengths loop on their own and stay in phase (polymeters). A synth step holds up to 4 notes with a level and ratchet, a tie or rest, an accent and a slide. A drum step holds any of the 16 sounds, each with its own level and ratchet.</p>
+<p>Three ways to enter steps: <b>live</b> (REC and play), the <b>SEQ layer</b> (hold SEQ), and the <b>STEP page</b> (tap SEQ, synth tracks). On the SMK-37 there is a fourth: the pads on <b>STEPS</b>.</p>
+<h3>STEP page (tap SEQ)</h3>
+<div class="dials" data-d="STEP|NOTE|TIME / LEN|FLAG" data-s="moves the cursor|transposes the step|NOTE · TIE · REST · on a note: LEN|– · ACC · SLD · A+S"></div>
+<ul>
+<li><b>Keys</b>: the keys pressed together become the cursor's step (POLY: up to 4 notes). Let go of all keys and the cursor moves on. A MIDI keyboard works too.</li>
+<li><b>LEN</b> on a note: how many steps it lasts. Longer turns the next steps into TIEs (stops at the next note: <span class="cw">NOTE AHEAD</span>, <span class="cw">END OF PATTERN</span>).</li>
+<li><b>FLAG</b>: ACC accent, SLD slide to the next note, A+S both.</li>
+<li><span class="k">PARA</span> tapped: clears the step and moves on.</li>
+</ul>
+<p>Not while recording or armed. On the drum track the page says <span class="cw">DRUM TRACK</span>: use the DRUMS grid or the SEQ layer.</p>
+<h3>PATTERN page (tap SEQ again)</h3>
+<div class="dials" data-d="LEN|DIV|SWG|GATE" data-s="1–64 steps|1/4 … 2BAR|track swing|note length"></div>
+<p><b>DIV</b>: 1/4, 1/8, 1/16 (default), 1/32, 8T, 16T, 1/2, 1BAR, 2BAR. A 64-step track at 2BAR lasts 128 bars.</p>
+<h3>Nudge</h3>
+<p>SEQ + step + DIAL 4 moves a step off the grid, −32 … +31 in 1/64 of a step (minus = early, plus = late). Its ratchets move with it. On the drum track the whole step moves. A nudged step shows a dot in its tile.</p>
+<h3>Parameter locks</h3>
+<p>A lock gives one sound parameter another value for one step only.</p>
+<div class="steps">
+<div class="step">Turn the parameter you want on its page (for example FX &gt; DLY). It becomes the lock parameter (before you turn anything: ENV DEST &gt; FLT).</div>
+<div class="step">Hold SEQ and hold the step.</div>
+<div class="step">Turn <span class="k">K4</span>: the first click makes the lock, the next ones move it. The title line shows it (<span class="cw">lock dst 14</span>).</div>
+<div class="step"><span class="k">K3</span> (step still held) steps through the other parameters.</div>
+</div>
+<p>Up to 24 locks per track, one per parameter per step. Not lockable: arp, key / scale / chord, STRUM / VLEAD, voice mode, MUTE, LEN / DIV / SWG and global pages (<span class="cw">NOT LOCKABLE</span>, <span class="cw">NO LOCK LEFT</span>). SEQ + step + OCTAVE− clears locks and nudge. Undo does not bring locks back.</p>
+<h3>Fill conditions</h3>
+<div class="tw"><table><tr><th>condition</th><th>mark</th><th>plays</th></tr>
+<tr><td>normal</td><td>—</td><td>always</td></tr>
+<tr><td>FILL ONLY</td><td>small F</td><td>only during a fill</td></tr>
+<tr><td>NO FILL</td><td>×</td><td>always, except during a fill</td></tr></table></div>
+<p>Call a fill with GLOBE + 9 (while held) or GLOBE + 10 (the next bar). Make the rolls and crashes FILL ONLY and the main hat NO FILL: one finger brings the fill in and out. STOP ends any fill.</p>
+</section>
+
+<section class="ch" id="chords" data-g="MAKE" data-t="4">
+<div class="crumb">MAKE &gt; KEY AND CHORDS</div>
+<h2>Key, scales, chords and CHORD+</h2>
+<h3>Key and scale</h3>
+<ul>
+<li>SCALE + any key sets the key of the song for the three synth tracks (also SEL page &gt; ROOT, per track).</li>
+<li><b>SCALE</b> (SCALE + DIAL 2: all synth tracks; SEL page: the selected one): CHR, MAJ, MIN, DOR, MIX, PEN, MPEN, HARM, PHRY, LYD, LOC, MEL, BLUES, WHOLE, DIMHW, DIMWH.</li>
+<li><b>KEYS</b>: OFF (chromatic), SNAP (rounded down to the scale), WHITE (white keys walk the scale from C4, black keys silent).</li>
+<li><b>TRANSPOSE</b> per track: ±24 semitones.</li>
+</ul>
+<p>Changing a sound never changes the key, chord mode, pattern or mix of its track.</p>
+<h3>Chord mode: one finger, one chord</h3>
+<div class="tw"><table><tr><th>CHORD</th><th>notes</th></tr>
+<tr><td>OFF</td><td>single notes</td></tr><tr><td>TRIAD</td><td>1-3-5</td></tr><tr><td>7TH</td><td>1-3-5-7</td></tr><tr><td>9TH</td><td>1-3-7-9 (lo-fi / R&amp;B voicing)</td></tr><tr><td>SUS4</td><td>1-4-5</td></tr><tr><td>POWER</td><td>1-5-8</td></tr></table></div>
+<p>With a chord on, the white keys walk the scale from C4: C4 plays chord I, D4 chord II… Every chord is built from the scale. With SCALE on CHR the chords come from the minor scale. A chord records as a chord.</p>
+<h3>CHORD+: black keys change the chord</h3>
+<div class="fig"><div class="panel" data-lit="F#4:t3 G#4:t3 A#4:t3 C#5:t3 D#5:t3 F#3:t3 G#3:t3 A#3:t3 C#4:t3 D#4:t3 G4:w"></div><div class="cap">Hold a black key while you play a white one, or press it while the chord is held.</div></div>
+<div class="tw"><table><tr><th>black key</th><th>changes the chord</th></tr>
+<tr><td>F#</td><td>major ↔ minor</td></tr><tr><td>G#</td><td>adds the 7th</td></tr><tr><td>A#</td><td>sus4</td></tr><tr><td>C#</td><td>adds the 9th</td></tr><tr><td>D#</td><td>an inversion</td></tr></table></div>
+<p>Both octaves of black keys work, and you can hold several. In C major: G4 plays G, G# makes G7, F# + G# make Gm7.</p>
+<h3>SEL 2: STRUM and VLEAD</h3>
+<div class="dials" data-d="TRN|STRUM|VLEAD|—" data-s="transpose ±24|1–60 ms a note, right up, left down|ON: smooth voice leading|"></div>
+<p>Tap SCALE twice (or SCALE then K2). STRUM works on the keys and on the chord steps the sequencer plays. VLEAD voices each chord nearest the last one.</p>
+</section>
+
+<section class="ch" id="mix" data-g="MAKE" data-t="5">
+<div class="crumb">MAKE &gt; MIX AND TEMPO</div>
+<h2>Mix, mute, solo, tempo</h2>
+<div class="tw"><table><tr><th>where</th><th>what</th></tr>
+<tr><td>FADER 1–4, bank A</td><td>levels of tracks 1–4</td></tr>
+<tr><td>GLOBE + DIAL 1–4</td><td>levels of tracks 1–4</td></tr>
+<tr><td>TRACKS screen, DIAL 2</td><td>the selected track's level (on a muted track: unmutes it)</td></tr>
+<tr><td>TRACKS screen, DIAL 4</td><td>the selected track's pan</td></tr>
+<tr><td>TRACKS screen, DIAL 1 / DIAL 3</td><td>global swing / the selected track's length in steps</td></tr>
+<tr><td>GLOBE + 1–4 / 5–8</td><td>mute / solo</td></tr>
+<tr><td>VOICE 2 page</td><td>PAN and MUTE of a synth track</td></tr>
+<tr><td>GLO &gt; DRUMS</td><td>drum LVL, reverb, delay and MIDI channel</td></tr>
+<tr><td>FADER banks B C D</td><td>filter, reverb, delay per track</td></tr>
+<tr><td>K1</td><td>output volume</td></tr></table></div>
+<p>Level and pan glide over about 3 ms, so there is no zipper noise on a held note.</p>
+<h3>Tempo</h3>
+<p>K2 on TRACKS or in any layer, GLOBE + 16 (tap), or GLO &gt; GLOBAL &gt; BPM (40–240). With SYNC on USB, the tempo follows the master clock.</p>
+</section>
+
+<section class="ch" id="save" data-g="MAKE" data-t="6">
+<div class="crumb">MAKE &gt; SAVE AND UNDO</div>
+<h2>Undo, clear, save, autosave</h2>
+<div class="tw"><table><tr><th>action</th><th>how</th></tr>
+<tr><td>undo / redo</td><td>PARA + OCTAVE− / OCTAVE+. One level: the last recording pass, erase, clear, step or pattern edit</td></tr>
+<tr><td>clear the selected track</td><td>hold SEQ REC ~2 s (a ring fills). Undo brings it back</td></tr>
+<tr><td>clear the pattern</td><td>SAVE &gt; TOOLS &gt; CLRSQ (GO)</td></tr>
+<tr><td>reset the sound</td><td>SAVE &gt; TOOLS &gt; INIT (GO): the engine's defaults</td></tr>
+<tr><td>new loop</td><td>SAVE &gt; TOOLS &gt; NEW (GO): power-on sounds, empty patterns, 90 BPM. Sections A–D are kept</td></tr>
+<tr><td>save the loop as a section</td><td>BT + 5–8 (A–D)</td></tr>
+<tr><td>save / load / erase a section</td><td>SAVE &gt; SECTION: SECT A–D, ERASE, LOAD, SAVE (GO). Erase has no undo</td></tr>
+<tr><td>save a sound</td><td>SAVE &gt; USER: SLOT 1–32, SAVE (GO)</td></tr>
+<tr><td>autosave</td><td>automatic: stopped and untouched for 2.5 s. At power-on you come back where you left</td></tr></table></div>
+<p>The SAVE pages open when you tap <span class="k">BT</span> anywhere but TRACKS, DRUMS and SONG.</p>
+<div class="tw"><table><tr><th>page</th><th class="c1">dial 1</th><th class="c2">dial 2</th><th class="c3">dial 3</th><th class="c4">dial 4</th></tr>
+<tr><td>PRESETS</td><td>the sound</td><td>the engine</td><td>—</td><td>FAV: right add, left remove</td></tr>
+<tr><td>USER</td><td>SLOT 1–32</td><td>LOAD</td><td>ERASE</td><td>SAVE</td></tr>
+<tr><td>SECTION</td><td>SECT A–D</td><td>ERASE</td><td>LOAD</td><td>SAVE</td></tr>
+<tr><td>TOOLS</td><td>CLRSQ</td><td>INIT</td><td>—</td><td>NEW</td></tr></table></div>
+<h3>One song on the keyboard</h3>
+<p>The keyboard holds one song: four sections A–D and their order. A section is a loop: the four tracks (sounds, patterns, kit, locks, nudges, fills, filter) and the loop's global settings (tempo, swing, key…). Your working loop is apart: LOAD copies a section into it, SAVE copies it into a section. To keep several songs, save one editor backup or song file per song.</p>
+<h3>Favourites</h3>
+<p>On SAVE &gt; PRESETS, DIAL 4 right adds the sound to your favourites (<span class="cw">FAV ADDED</span>), up to 16. They come first in the K4 list, tagged FAV. DIAL 4 left removes one. They are a setting of the keyboard, not of a project.</p>
+<p>Settings of the keyboard (SYNC, MIDI, lights, menu settings, REC screen MODE / START / QUANT) are never changed by loading a section or NEW. Presets and sections write to flash only while the song is stopped.</p>
+</section>
+
+<section class="ch" id="song" data-g="MAKE" data-t="7">
+<div class="crumb">MAKE &gt; SONG MODE</div>
+<h2>Song mode</h2>
+<p>One song: up to 16 steps of four sections, A–D.</p>
+<h3>Make it live, by playing</h3>
+<div class="steps">
+<div class="step">Make a loop (verse). BT + 5: <span class="cw">save A</span>. Change it (chorus), BT + 6 = B. A bridge in C (7), an end in D (8).</div>
+<div class="step">Play the sections live: BT + 1–4. Playing: from the next bar, always in time. Stopped: at once.</div>
+<div class="step">Quick chain: keep BT held, tap several section keys (A B B C, up to 8), let go. The title reads <span class="cw">chain A B B C</span>; the playing one is lit, the next framed. A single tap, STOP or PLAY in song mode ends it.</div>
+<div class="step">Record the song: BT + 14. From the next bar every section you play, and for how long, goes into the song. BT + 14 again, or STOP, ends it (<span class="cw">SONG PARTS 5</span>).</div>
+<div class="step">Play it back: BT + 13 switches loop / song. In song mode PLAY plays the whole song and stops at the end.</div>
+</div>
+<h3>The SONG screen</h3>
+<p>Tap BT on TRACKS or DRUMS, or BT + 16, or SEQ until SONG.</p>
+<div class="dials" data-d="step|section|bars|steps" data-s="the song step (cursor)|A–D|length 1–64 bars|song length 1–16"></div>
+<div class="tw"><table><tr><td>SEQ REC</td><td>stores the current loop into the step's section (used: REC again within 3 s)</td></tr>
+<tr><td>BT (tap)</td><td>saves the song</td></tr>
+<tr><td>OCTAVE−</td><td>loop / song mode</td></tr>
+<tr><td>OCTAVE+ twice (within 3 s)</td><td>loads the step's section</td></tr>
+<tr><td>SEQ PLAY / SEQ / PATCH</td><td>play-stop / SEQ pages / back to TRACKS</td></tr></table></div>
+<p>Song settings change only while stopped (<span class="cw">STOP FIRST</span>). An empty section cannot play (<span class="cw">EMPTY SECTION: REC</span>).</p>
+</section>
+
+<!-- ============ SOUND ============ -->
+<section class="ch" id="pages" data-g="SOUND" data-t="1">
+<div class="crumb">SOUND &gt; SCREENS AND PAGES</div>
+<h2>Screens and every page</h2>
+<div class="tw"><table><tr><th>screen</th><th>open with</th><th>shows</th></tr>
+<tr><td>TRACKS</td><td>tap PATCH</td><td>tempo, swing, transport, bar.beat, each track with sound, steps, playhead, badges, level. Dials: swing · level · steps · pan</td></tr>
+<tr><td>visualiser</td><td>tap PATCH on TRACKS</td><td>12 styles (<a href="#vis">Visualiser</a>)</td></tr>
+<tr><td>layer</td><td>hold a layer button</td><td>16 tiles and the four dials</td></tr>
+<tr><td>DRUMS</td><td>tap PARA or SEQ on TRACKS, drum track</td><td>grid, kit and sound pages</td></tr>
+<tr><td>REC READY / FREE TAKE / COUNT-IN</td><td>SEQ REC while stopped</td><td>mode · length · start · quant</td></tr>
+<tr><td>SONG</td><td>tap BT on TRACKS</td><td>the section chain</td></tr>
+<tr><td>pages</td><td>tap a function button</td><td>four coloured values with a graph, or in large type placed like the dials</td></tr>
+<tr><td>HOME menu</td><td>hold PATCH</td><td>the keyboard's settings</td></tr>
+<tr><td>fader bank</td><td>FADER BANK</td><td>banks A–D and what each fader sets</td></tr>
+<tr><td>pad picker</td><td>turn K4</td><td>16 sounds of one kind</td></tr>
+<tr><td>DAW</td><td>&lt; + &gt;</td><td>controller view (<a href="#daw">DAW mode</a>)</td></tr></table></div>
+<p>The title line also carries short messages: <span class="cw">KEY D</span>, <span class="cw">ERASED</span>, <span class="cw">AGAIN: SAVE</span>, <span class="cw">NEXT: B</span>, <span class="cw">lock flt 12</span>… The number after a page title (<span class="cw">PATTERN 2/2</span>) counts that button's pages.</p>
+<h3>Every page, dial by dial</h3>
+<p>Tap a button for its first page (or the last one used), tap again for the next, or use K2 / &lt; &gt;. On the drum track, pages that do not apply show <span class="cw">DRUM TRACK</span>.</p>
+<div class="tw"><table><tr><th>button</th><th>page</th><th class="c1">dial 1</th><th class="c2">dial 2</th><th class="c3">dial 3</th><th class="c4">dial 4</th></tr>
+<tr><td>CHORD</td><td>ENV</td><td>ATK attack</td><td>DEC decay</td><td>SUS sustain</td><td>REL release</td></tr>
+<tr><td></td><td>ENV DEST</td><td>FLT env → brightness ±</td><td>PIT env → pitch ±</td><td>SHP env → shape ±</td><td>ESYNC OFF / ON</td></tr>
+<tr><td>NOTE REPEAT</td><td>LFO</td><td>RATE Hz</td><td>WAVE SIN TRI SAW SQR S&amp;H</td><td>PHS phase</td><td>FADE fade-in</td></tr>
+<tr><td></td><td>LFO 2</td><td>SYNC OFF, 4BAR … 1/32</td><td>TRIG NOTE / FREE</td><td>POL BI / UNI</td><td>—</td></tr>
+<tr><td></td><td>LFO DEST</td><td>PIT vibrato</td><td>FLT wobble</td><td>SHP shape</td><td>AMP tremolo</td></tr>
+<tr><td>FX</td><td>FX (sends)</td><td>DST drive</td><td>CHO chorus</td><td>DLY delay</td><td>REV reverb</td></tr>
+<tr><td></td><td>FILTER</td><td>FILT left LP, right HP</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td></td><td>SLICER</td><td>SLCR OFF GATE STUT</td><td>PAT 1–16</td><td>RATE 1/8 … 32T</td><td>DEPTH</td></tr>
+<tr><td></td><td>INSERT</td><td>INSRT type</td><td>A</td><td>B</td><td>C</td></tr>
+<tr><td></td><td>INSERT 2</td><td>MIX dry / wet</td><td>—</td><td>—</td><td>—</td></tr>
+<tr><td></td><td>DLY (global)</td><td>TIME 1/4 … 1/4D</td><td>FDBK</td><td>COLR tone</td><td>MIX</td></tr>
+<tr><td></td><td>REV/CHO (global)</td><td>SIZE</td><td>DAMP</td><td>CRT chorus rate</td><td>CDP chorus depth</td></tr>
+<tr><td>SCALE</td><td>SEL</td><td>ROOT</td><td>SCL scale</td><td>QNT keys OFF SNAP WHITE</td><td>CHORD</td></tr>
+<tr><td></td><td>SEL 2</td><td>TRN ±24</td><td>STRUM ±60 ms</td><td>VLEAD</td><td>—</td></tr>
+<tr><td>PARA</td><td>EDIT 1</td><td colspan="4">engine parameters 1–4 (<a href="#engines">Engines</a>)</td></tr>
+<tr><td></td><td>EDIT 2</td><td colspan="4">engine parameters 5–8</td></tr>
+<tr><td></td><td>FILTER (ANALOG)</td><td>TYPE LP BP HP</td><td>CUT</td><td>RES</td><td>KTR key track</td></tr>
+<tr><td></td><td>VOICE</td><td>VCE POLY MONO LEG UNI</td><td>GLD glide</td><td>GLMOD RATE / TIME</td><td>PRIO LAST LOW HIGH</td></tr>
+<tr><td></td><td>VOICE 2</td><td>ALLOC ROT / REUSE</td><td>DTUNE unison</td><td>PAN</td><td>MUTE</td></tr>
+<tr><td>ARP</td><td>ARP</td><td>MODE</td><td>RATE 1/4 … 16T</td><td>OCT 1–4</td><td>GATE</td></tr>
+<tr><td></td><td>ARP 2</td><td>SWG</td><td>PROB</td><td>HOLD OFF / ON</td><td>ORD NOTE / PLAY</td></tr>
+<tr><td>SEQ</td><td>STEP</td><td>STEP</td><td>NOTE</td><td>TIME / LEN</td><td>FLAG</td></tr>
+<tr><td></td><td>PATTERN</td><td>LEN 1–64</td><td>DIV</td><td>SWG</td><td>GATE</td></tr>
+<tr><td>GLOBE</td><td>GLOBAL</td><td>BPM 40–240</td><td>SWING</td><td>CLICK OFF REC ON</td><td>TUNE ±50 cents</td></tr>
+<tr><td></td><td>MASTER</td><td>DUST</td><td>DUCK</td><td>FILT DJ filter</td><td>ROLL rate</td></tr>
+<tr><td></td><td>SYSTEM</td><td>OUT KEYS / SEQ</td><td>SYNC INT USB TRS</td><td>IN</td><td>CPU load</td></tr>
+<tr><td></td><td>DRUMS</td><td>CH4 drum channel</td><td>LVL</td><td>REV</td><td>DLY</td></tr>
+<tr><td></td><td>TEXTURE</td><td>SRC</td><td>LEVEL</td><td>TONE</td><td>MOVE</td></tr>
+<tr><td></td><td>TEXTURE 2</td><td>RATE 1–16 bars</td><td>WHEN PLAY / ALWAYS</td><td>DUCK OFF / ON</td><td>—</td></tr>
+<tr><td></td><td>MIDI</td><td>CH1</td><td>CH2</td><td>CH3</td><td>CH4</td></tr>
+<tr><td></td><td>MIDI 2</td><td>IN</td><td>OTHER</td><td>OUT</td><td>BEND</td></tr>
+<tr><td></td><td>MIDI 3</td><td>FX CH</td><td>DR MAP</td><td>REMOTE</td><td>CLOCK</td></tr>
+<tr><td>BT</td><td>PRESETS</td><td>sound</td><td>engine</td><td>—</td><td>FAV</td></tr>
+<tr><td></td><td>USER</td><td>SLOT</td><td>LOAD</td><td>ERASE</td><td>SAVE</td></tr>
+<tr><td></td><td>SECTION</td><td>SECT</td><td>ERASE</td><td>LOAD</td><td>SAVE</td></tr>
+<tr><td></td><td>TOOLS</td><td>CLRSQ</td><td>INIT</td><td>—</td><td>NEW</td></tr></table></div>
+<h3>Page notes</h3>
+<ul>
+<li>Global pages (DLY, REV/CHO, GLOBAL, MASTER, SYSTEM, DRUMS) are the same whatever track is selected.</li>
+<li>Drum track: SLICER, PATTERN, SONG and the global pages work. Its kit, level, reverb and pan are on the DRUMS kit page; its filter is FX + DIAL 4 or fader bank B.</li>
+<li>FM6 tracks ignore ENV and ENV DEST (each operator has its own envelope).</li>
+<li><b>ENV SYNC</b> (ENV DEST &gt; ESYNC ON): ATK, DEC, REL become note values of the tempo (0, 1/64T … 4BAR).</li>
+<li><b>LFO 2</b>: SYNC locks the cycle to the tempo (RATE ignored). TRIG NOTE restarts it on each phrase, FREE lets it run. POL UNI swings only above the value.</li>
+<li><b>ARP modes</b> (with C E G held): UP C E G · DN G E C · UPDN C E G E · DNUP G E C E · RND · ORD the order pressed · REPEAT the last note · UP+8 C E G C' · CONV C G E · DIVG E G C · PINKY C G E G · THUMB C E C G · WALK random steps · CHORD all held notes together. MODE OFF switches the arp off.</li>
+<li><b>KBD HOLD</b>: ARP 2 HOLD ON with ARP MODE OFF holds the notes you play, without an arpeggio. The next note with no key down replaces them; notes played while keys are down join them.</li>
+<li>ARP SWG also works with the sequencer stopped. A running arp keeps going when you load another sound.</li>
+<li>EDIT 1 / EDIT 2 carry the engine's own page names: ANALOG OSC / FLT, DIGITAL OPS / MOD, PHASE PHS / LINE, LOFI CHIP / MOTN, SAMPLE SET / TONE, VOICE VOWL / TONE, TRIO OSC / TONE, WHEEL BARS / TONE, GRAIN GRAN / SPRY, FM6 OPS / PATCH, PHYS BODY / EXCT, NOISE SRC / MOVE.</li>
+</ul>
+</section>
+
+<section class="ch" id="engines" data-g="SOUND" data-t="2">
+<div class="crumb">SOUND &gt; SOUNDS AND ENGINES</div>
+<h2>Sounds and the twelve engines</h2>
+<p>153 factory sounds, all level-matched, on twelve engines. K4 browses them by kind; your 32 user presets come after. A new project starts at 90 BPM with 808 BOOM, RHODES, LOFI FLUTE and the 808 kit. To pick an engine directly: SAVE &gt; PRESETS &gt; DIAL 2. To start from its defaults: SAVE &gt; TOOLS &gt; INIT.</p>
+<div class="tw"><table><tr><th>kind</th><th>sounds</th></tr>
+<tr><td>bass</td><td>808 BOOM, 808 DIRTY, 808 SLIDE, SUB BASS, PLUGG BASS, REESE, WOBBLE, ACID 303, FUNK BASS, MONO BASS, FM BASS, BASS GTR, CZ BASS, ROUND BASS, FAT BASS, WOW BASS, GB BASS, UP BASS, DEEP BASS, PLUCK BASS, NES BASS, SAW BASS</td></tr>
+<tr><td>keys</td><td>RHODES, DX RHODES, WURLI, M1 PIANO, AFRO KEYS, CLAV, GRAND PNO, DUSTY PNO, LOFI KEYS, SOFT KEYS, TINE EP, FM GRAND</td></tr>
+<tr><td>organ</td><td>SOUL ORGAN, GOSPEL, JAZZ ORGAN, DIRTY B3, HOUSE ORGN, DRAWBARS, ACCORDION, ROCK ORGAN, CHAPEL, REGGAE ORG</td></tr>
+<tr><td>pad</td><td>WARM PAD, DARK STR, ATMOS PAD, SAW PAD, ENSEMBLE, GLASS PAD, SOFT PAD, CZ STRING, LOFI CLOUD, VIBE HAZE, STR CLOUD, SHIMMER, DRONE, CHOIR AAH, SOUL OOH, BOWED MTL, CELLO BOW, GLASS BOWL, WIND, OCEAN, CZ PAD, VOX PAD, PNO FREEZE, HORN CLOUD, SINE PAD, PULSE PAD</td></tr>
+<tr><td>lead</td><td>SUPERSAW, G-FUNK LD, FAT LEAD, PAN FLUTE, SYNC LEAD, HOOVER, TALKBOX, HARMONICA, GAME LEAD, LOFI FLUTE, FLUTE DUST, NZ ARCADE, WAVE LEAD, CZ LEAD, ROBOT, PWM LEAD, SQR LEAD</td></tr>
+<tr><td>pluck &amp; bell</td><td>TRAP PLUCK, RESO PLUCK, PLUGG BELL, TRAP BELL, MUSIC BOX, KALIMBA, MARIMBA, XYLOPHONE, GLOCKEN, CELESTA, STEEL DRUM, HARP, VIBES, 8BIT ARP, GLASS BELL, WOOD BARS, NYLON PICK, STR PLUCK, SITAR, PHYS HARP, BELL TREE, MODAL BAR, THUMB PNO, NYLON GTR, STEEL GTR, MUTED GTR, KOTO, BANJO, TANPURA, CHIMES, BIG BELL, VIBRA BAR, STEEL PAN, WOOD BLOCK, 1BIT BEEP, CZ RESO, TUBE BELL, FM PLUCK</td></tr>
+<tr><td>stab</td><td>MIN STAB, MIN7 STAB, RAVE STAB, DUB CHORD, SYN BRASS, CZ BRASS, BRASS SECT, 80S POLY, HORN STAB, STRING STB, CHIP CHORD, POWER STAB</td></tr>
+<tr><td>FX</td><td>SCRATCH, GM KIT, HAND DRUM, MEMB TOMS, TABLA, CONGA, TIMPANI, RAIN, NZ METAL, VINYL, HISS, RISER, NZ SNARE, BITCRUSH, RADIO, CHIP NOISE</td></tr></table></div>
+<h3>The twelve engines</h3>
+<p>Each engine has eight parameters: EDIT 1 (tap PARA once) and EDIT 2 (tap twice), on dials 1–4.</p>
+<div class="tw"><table><tr><th>engine</th><th>sound</th><th>EDIT 1</th><th>EDIT 2</th></tr>
+<tr><td>ANALOG</td><td>virtual analogue</td><td>WAVE · DTN · MIX · NOIS</td><td>CUT · RES · DRV · KTR</td></tr>
+<tr><td>DIGITAL</td><td>4-operator FM</td><td>ALG 1–8 · R2 · R3 · R4</td><td>IDX · MDEC · FB · —</td></tr>
+<tr><td>PHASE</td><td>phase distortion (CZ)</td><td>WAVE · WAVE2 · DCW · ENV</td><td>DTN · LINE MIX/RING · SUB · —</td></tr>
+<tr><td>LOFI</td><td>8-bit chip</td><td>CHIP · WAVE · DUTY · CRSH</td><td>SWP · VIB · ARP · TONE</td></tr>
+<tr><td>SAMPLE</td><td>sampler</td><td>SET (PIANO BASS VIBES HORNS STRGS FLUTE SCRCH PERC USR1–4) · TUNE · BITS · LOOP</td><td>CUT · — · DRV · —</td></tr>
+<tr><td>VOICE</td><td>formant voice</td><td>VOWL · VOWL2 · TALK · SHIFT</td><td>BUZZ · BRTH · Q · RAND</td></tr>
+<tr><td>TRIO</td><td>three oscillators</td><td>WAVE · INT2 · INT3 · DTN</td><td>MODE LP BP HP NOT · CUT · RES · PW</td></tr>
+<tr><td>WHEEL</td><td>tonewheel organ</td><td>REG · SUB · BODY · TOP</td><td>PERC · CLICK · DRV · ROTR</td></tr>
+<tr><td>GRAIN</td><td>granular</td><td>SRC · POS · SIZE · DENS</td><td>PTCH · SPRD · RAND · TONE</td></tr>
+<tr><td>FM6</td><td>6-operator FM, DX7 patches</td><td>ALG · FB · MLVL · MRAT</td><td>MEG · VMOD · DTUN · PTCH (F1–F8, B1–B27)</td></tr>
+<tr><td>PHYS</td><td>physical models</td><td>MODEL MODAL STRNG MEMB SYMP · STRC · BRIT · DAMP</td><td>POS · ACC · BOW · EXC</td></tr>
+<tr><td>NOISE</td><td>noise sources</td><td>MODE ANLG DUST LFSR META · COLR · FREQ · RES</td><td>TRK · DENS · DRFT · CRSH</td></tr></table></div>
+<h3>FM6 and DX7 patches</h3>
+<p>FM6 is the synthesis core of Dexed. Its eight EDIT values are macros on top of the patch. Edit full patches in the web editor's FM6 panel: import a DX7 SysEx voice or a 32-voice cartridge, store up to 27 voices in the bank B1–B27, then pick them with PTCH. A project keeps PTCH, not the patch: store an edited patch to keep it.</p>
+</section>
+
+<section class="ch" id="fx" data-g="SOUND" data-t="3">
+<div class="crumb">SOUND &gt; EFFECTS</div>
+<h2>Effects</h2>
+<h3>Signal path</h3>
+<div class="fig"><svg viewBox="0 0 1000 150" role="img" aria-label="Signal path"><g font-family="SLOOP Terminus, monospace" font-size="15" text-anchor="middle">
+<g fill="none" stroke="#38acde"><rect x="10" y="20" width="90" height="34"/><rect x="120" y="20" width="80" height="34"/><rect x="220" y="20" width="90" height="34"/><rect x="330" y="20" width="90" height="34"/><rect x="440" y="20" width="90" height="34"/><rect x="550" y="20" width="110" height="34"/><rect x="680" y="20" width="120" height="34"/></g>
+<g fill="#c4c4cc"><text x="55" y="42">ENGINE</text><text x="160" y="42">DRIVE</text><text x="265" y="42">INSERT</text><text x="375" y="42">SLICER</text><text x="485" y="42">FILTER</text><text x="605" y="42">LEVEL·DUCK</text><text x="740" y="42">PAN·SENDS</text></g>
+<g stroke="#76767e"><line x1="100" y1="37" x2="120" y2="37"/><line x1="200" y1="37" x2="220" y2="37"/><line x1="310" y1="37" x2="330" y2="37"/><line x1="420" y1="37" x2="440" y2="37"/><line x1="530" y1="37" x2="550" y2="37"/><line x1="660" y1="37" x2="680" y2="37"/><line x1="800" y1="37" x2="820" y2="37"/><line x1="900" y1="54" x2="900" y2="86"/></g>
+<rect x="820" y="20" width="160" height="34" fill="none" stroke="#e14bd0"/><text x="900" y="42" fill="#c4c4cc">CHO · DLY · REV</text>
+<g fill="none" stroke="#ffc618"><rect x="10" y="90" width="110" height="34"/><rect x="140" y="90" width="90" height="34"/><rect x="250" y="90" width="120" height="34"/><rect x="390" y="90" width="90" height="34"/><rect x="500" y="90" width="90" height="34"/><rect x="610" y="90" width="100" height="34"/></g>
+<g fill="#c4c4cc"><text x="65" y="112">MIX+TEXTURE</text><text x="185" y="112">DUST</text><text x="310" y="112">PUNCH-IN FX</text><text x="435" y="112">FILT</text><text x="545" y="112">MASTER</text><text x="660" y="112">LIMITER</text></g>
+<g stroke="#76767e"><line x1="120" y1="107" x2="140" y2="107"/><line x1="230" y1="107" x2="250" y2="107"/><line x1="370" y1="107" x2="390" y2="107"/><line x1="480" y1="107" x2="500" y2="107"/><line x1="590" y1="107" x2="610" y2="107"/><line x1="900" y1="86" x2="65" y2="86"/><line x1="65" y1="86" x2="65" y2="90"/></g>
+<text x="740" y="112" fill="#76767e" text-anchor="start">→ OUT / USB</text></g></svg>
+<div class="cap">Top: each track (cyan). Bottom: the whole mix (yellow). The drum track has its own insert, slicer, filter, level, pan and sends.</div></div>
+<h3>Master: DUST, DUCK, FILT, ROLL</h3>
+<p>On FX + DIAL 1–3, or GLO &gt; MASTER.</p>
+<div class="tw"><table><tr><td>DUST 0–100 %</td><td>the mix through an old sampler and a record: drive, lower rate, fewer bits, low-pass, and while playing a little hiss and crackle</td></tr>
+<tr><td>DUCK 0–100 %</td><td>every kick pumps the synth tracks down over an 1/8 note</td></tr>
+<tr><td>FILT</td><td>DJ filter: left low-pass, right high-pass, centre off</td></tr>
+<tr><td>ROLL</td><td>the note-repeat rate of ARP + key</td></tr></table></div>
+<h3>Punch-in effects (FX held)</h3>
+<p>The effect runs on the whole mix while the key or pad is held. Loops and the gate start on the grid.</p>
+<div class="tw"><table><tr><th>key</th><th>effect</th><th>key</th><th>effect</th></tr>
+<tr><td>1 F3</td><td>loop 1/4</td><td>9 G4</td><td>low-pass sweep</td></tr>
+<tr><td>2 G3</td><td>loop 1/8</td><td>10 A4</td><td>high-pass sweep</td></tr>
+<tr><td>3 A3</td><td>loop 1/16</td><td>11 B4</td><td>phone</td></tr>
+<tr><td>4 B3</td><td>loop 1/32</td><td>12 C5</td><td>bit crush</td></tr>
+<tr><td>5 C4</td><td>stutter (1/16 triplets)</td><td>13 D5</td><td>alias</td></tr>
+<tr><td>6 D4</td><td>reverse</td><td>14 E5</td><td>gate 1/16</td></tr>
+<tr><td>7 E4</td><td>tape stop</td><td>15 F5</td><td>echo (dotted 1/8)</td></tr>
+<tr><td>8 F4</td><td>half speed</td><td>16 G5</td><td>tape wobble</td></tr></table></div>
+<div class="fig"><div class="panel" data-lit="F#3:t4 G#3:t4 A#3:t4 C#4:t4 D#4:t4 F#4:t2 G#4:t2 A#4:t2 C#5:t2 D#5:t2 F#5:t2 fx:t3"></div><div class="cap">FX + a black key: eleven more effects.</div></div>
+<div class="tw"><table><tr><th>black key</th><th>effect</th><th>black key</th><th>effect</th></tr>
+<tr><td>F#3</td><td>KILL LOW (below ~250 Hz)</td><td>F#4</td><td>FLANGER (jet sweep over a bar)</td></tr>
+<tr><td>G#3</td><td>KILL MID</td><td>G#4</td><td>AUTO-PAN (once a beat)</td></tr>
+<tr><td>A#3</td><td>KILL HIGH (above ~2.5 kHz)</td><td>A#4</td><td>FREEZE (held in the reverb)</td></tr>
+<tr><td>C#4</td><td>REWIND</td><td>C#5</td><td>LOOP 8T</td></tr>
+<tr><td>D#4</td><td>OCT UP</td><td>D#5</td><td>MONO</td></tr>
+<tr><td></td><td></td><td>F#5</td><td>FADE OUT (over two beats)</td></tr></table></div>
+<p>Over MIDI: set GLO &gt; MIDI 3 &gt; FX CH; that channel's notes F3–G5 play the 27 effects.</p>
+<h3>Texture</h3>
+<p>GLO &gt; TEXTURE: a looping bed under the mix, without using a track.</p>
+<div class="dials" data-d="SRC|LEVEL|TONE|MOVE" data-s="OFF VINYL TAPE RAIN WIND RADIO ROOM USR1–4|bed level|LP ← open → HP|how much it breathes"></div>
+<p>TEXTURE 2: RATE (1–16 bars for MOVE), WHEN (PLAY / ALWAYS), DUCK (the kick pumps it). Saved with the project and with each section.</p>
+<h3>Per track</h3>
+<ul>
+<li><b>FILTER</b> (FX &gt; FILTER, FX + DIAL 4, or fader bank B): left low-pass, right high-pass. Kept when you change sound, lockable, saved.</li>
+<li><b>Sends</b> (FX page): DST drive, CHO chorus, DLY delay, REV reverb. Delay and reverb settings are global (DLY, REV/CHO pages).</li>
+<li><b>SLICER</b>: a tempo gate (GATE) or stutter (STUT), 16 patterns, 1/8 to 32T, with a depth.</li>
+<li><b>INSERT</b>: one effect on the track alone, after its drive. INSERT 2 &gt; MIX sets dry / wet.</li>
+</ul>
+<div class="tw"><table><tr><th>type</th><th>A</th><th>B</th><th>C</th></tr>
+<tr><td>SOFT, HARD, FOLD, FUZZ</td><td>DRIVE</td><td>TONE</td><td>LEVEL</td></tr>
+<tr><td>CRUSH</td><td>BITS 1–16</td><td>RATE 689 Hz – 44 kHz</td><td>LPF</td></tr>
+<tr><td>PHASR, FLANG, CHOR</td><td>RATE</td><td>DEPTH</td><td>FDBK</td></tr></table></div>
+</section>
+
+<section class="ch" id="vis" data-g="SOUND" data-t="4">
+<div class="crumb">SOUND &gt; VISUALISER</div>
+<h2>The visualiser</h2>
+<p>On the TRACKS screen, tap <span class="k">PATCH</span>: the whole screen shows what Snoop37 plays.</p>
+<div class="tw"><table><tr><td>K2 or &lt; &gt;</td><td>next / previous style (kept with the settings)</td></tr>
+<tr><td>PATCH or any page button</td><td>closes it</td></tr>
+<tr><td>keys, pads, PLAY, REC, layers</td><td>work as ever</td></tr>
+<tr><td>dials</td><td>nothing (tempo: GLOBE + K2)</td></tr></table></div>
+<div class="tw"><table><tr><th>#</th><th>style</th><th>#</th><th>style</th></tr>
+<tr><td>1</td><td>OSCILLOSCOPE: the mix's wave</td><td>7</td><td>TAPE: two reels, level, bar, tempo</td></tr>
+<tr><td>2</td><td>SPECTRUM: 32 bands</td><td>8</td><td>LCD: seven-segment tempo and meters</td></tr>
+<tr><td>3</td><td>SPECTROGRAM: scrolling spectrum</td><td>9</td><td>BOUNCE: a ball per track</td></tr>
+<tr><td>4</td><td>LISSAJOUS: the stereo image</td><td>10</td><td>ORBIT: four planets</td></tr>
+<tr><td>5</td><td>VU METERS: tracks and mix</td><td>11</td><td>WIRES: a string per track</td></tr>
+<tr><td>6</td><td>CIRCLE: a ring that swells on kicks</td><td>12</td><td>SLOOP: the logo alive</td></tr></table></div>
+<p>The visualiser shows the mix as if MASTER were full up. It costs the sound nothing.</p>
+<h3>Boot logo</h3>
+<p>HOME menu &gt; SCREEN &gt; <b>BOOT LOGO</b> (K8): SNOOP37 (the animated doghouse intro with its jingle), SLOOP, or NONE. A key, pad or button skips the intro.</p>
+</section>
+
+<!-- ============ SETUP ============ -->
+<section class="ch" id="menu" data-g="SETUP" data-t="1">
+<div class="crumb">SETUP &gt; HOME MENU</div>
+<h2>The HOME menu</h2>
+<div class="fig"><div class="panel" data-lit="patch:w k2:w k5:t1 k6:t2 k7:t3 k8:t4 op:w om:w"></div></div>
+<p>Hold <span class="k">PATCH</span> (0.7 s) to open it; hold again to close. <span class="k">K2</span> walks the seven sections. Each row has its own knob, shown on the screen in its colour. <span class="k">OCTAVE+</span> steps the row under the cursor (or opens it). <span class="k">OCTAVE−</span> closes. SEQ PLAY and SEQ REC still work.</p>
+<div class="tw"><table><tr><th>section</th><th class="c1">K5</th><th class="c2">K6</th><th class="c3">K7</th><th class="c4">K8</th></tr>
+<tr><td>SCREEN</td><td>COLOR</td><td>ZOOM</td><td>KNOB LAYOUT</td><td>BOOT LOGO</td></tr>
+<tr><td>LIGHTS</td><td>LIGHTS</td><td>KEYS</td><td>NOTES</td><td>PAD LIGHT</td></tr>
+<tr><td>AUDIO</td><td>SPEAKER LOWCUT</td><td>USB AUDIO</td><td>USB RATE</td><td>LIMITER</td></tr>
+<tr><td>PLAY</td><td>KEY VELOCITY</td><td>BEND UP</td><td>BEND DOWN</td><td>KNOB ACCEL</td></tr>
+<tr><td>MIDI</td><td>TRS MIDI OUT</td><td>MODE</td><td>CHANNEL</td><td>LOCAL</td></tr>
+<tr><td>DAW</td><td>CC MAP</td><td>KNOBS</td><td>EDIT MAP</td><td>RESET MAP</td></tr>
+<tr><td>SYSTEM</td><td>2ND CORE</td><td>HARDWARE CALIBRATION</td><td>MIDI LEARN CLEAR</td><td>ABOUT</td></tr></table></div>
+<p>With KNOB LAYOUT = SMK the rows are on K1–K4. All of these are settings of the keyboard, kept when you load a project.</p>
+<h3>Every row</h3>
+<div class="tw"><table><tr><th>row</th><th>choices</th></tr>
+<tr><td>COLOR</td><td>screen palette: GREEN, AMBER, CYAN, RED, MONO, then your own theme (editor Theme page)</td></tr>
+<tr><td>ZOOM</td><td>ON: the value you touch shows large and white</td></tr>
+<tr><td>KNOB LAYOUT</td><td>FM-1 (default) / SMK (<a href="#panel">Panel tour</a>)</td></tr>
+<tr><td>BOOT LOGO</td><td>SNOOP37, SLOOP, NONE</td></tr>
+<tr><td>LIGHTS</td><td>OFF, LOW, MID, HIGH: every button glows so its label reads in the dark; what is on stays full</td></tr>
+<tr><td>KEYS</td><td>OFF, C KEYS, WHITE KEYS, ALL KEYS glow at the LIGHTS level</td></tr>
+<tr><td>NOTES</td><td>ON: the notes on the selected synth track light their keys</td></tr>
+<tr><td>PAD LIGHT</td><td>100 %, 75 %, 50 %, 25 %</td></tr>
+<tr><td>SPEAKER LOWCUT</td><td>ON cuts the lows below ~110 Hz</td></tr>
+<tr><td>USB AUDIO</td><td>MASTER (follows K1) / FULL (fixed level)</td></tr>
+<tr><td>USB RATE</td><td>AUTO / 44.1 KHZ / 48 KHZ (at the next start)</td></tr>
+<tr><td>LIMITER</td><td>SOFT (default: 9 dB more headroom, held chords keep their level, turn K1 up for loudness) / CLASSIC (SLOOP's curve)</td></tr>
+<tr><td>KEY VELOCITY</td><td>DYNAMIC, SOFT, HARD, FIXED 64 / 100 / 127 (<a href="#keys">Keys</a>)</td></tr>
+<tr><td>BEND UP / BEND DOWN</td><td>OFF, 1, 2, 3, 4, 5, 7, 12 semitones (default 7)</td></tr>
+<tr><td>KNOB ACCEL</td><td>ON (default): a slow turn is one value a click, a fast turn sweeps wider (x2 up to x16); turning back is always one value a click, name lists never jump · OFF: one value a click everywhere</td></tr>
+<tr><td>TRS MIDI OUT</td><td>ON (default) / OFF. NOT SENDING: the port did not answer; set it again to retry</td></tr>
+<tr><td>MODE</td><td>SYNTH (default) / DAW</td></tr>
+<tr><td>CHANNEL</td><td>1–16: DAW mode's main channel</td></tr>
+<tr><td>LOCAL</td><td>DAW mode: OFF (Snoop37 silent) / ON (keys play the selected track)</td></tr>
+<tr><td>CC MAP</td><td>DEFAULT / USER</td></tr>
+<tr><td>KNOBS</td><td>ABSOLUTE (0–127) / RELATIVE (64 ± clicks)</td></tr>
+<tr><td>EDIT MAP</td><td>OCTAVE+: the DAW map editor</td></tr>
+<tr><td>RESET MAP</td><td>shows how many entries differ; OCTAVE+ twice: USER = DEFAULT</td></tr>
+<tr><td>2ND CORE</td><td>ON (default): sound on both cores, about twice the room · OFF: one core. At the next power-on</td></tr>
+<tr><td>HARDWARE CALIBRATION</td><td>OCTAVE+ opens it (<a href="#rescue">Rescue</a>)</td></tr>
+<tr><td>MIDI LEARN CLEAR</td><td>shows how many CCs are learned; OCTAVE+ forgets them</td></tr>
+<tr><td>ABOUT</td><td>OCTAVE+: the version, 2.7.2 (SLOOP 2.7.1), 1 or 2 cores</td></tr></table></div>
+<h3>Lights that are always on</h3>
+<p>PLAY flashes on every beat. REC blinks when armed, solid while recording. The button of the page shown is lit. OCTAVE lights show an octave off 0. A locked layer's button blinks. ARP is lit while the arp runs. KNOB BANK and FADER BANK light while their screens are up.</p>
+</section>
+
+<section class="ch" id="midi" data-g="SETUP" data-t="2">
+<div class="crumb">SETUP &gt; MIDI</div>
+<h2>MIDI</h2>
+<h3>Where MIDI goes</h3>
+<ul>
+<li><b>USB</b>: in and out, to a computer, phone or USB MIDI host.</li>
+<li><b>TRS jack</b>: on the SMK-37 it is a MIDI <b>OUT</b> only (no MIDI IN). It sends what goes out on USB: keys and pads, and the sequencer with OUT = SEQ, or DAW mode. Use a TRS-to-DIN adapter, type A; if a synth does not respond, try type B. Switch it with HOME menu &gt; MIDI &gt; TRS MIDI OUT.</li>
+<li>Bluetooth MIDI is not supported.</li>
+</ul>
+<h3>GLO &gt; MIDI, MIDI 2, MIDI 3</h3>
+<div class="tw"><table><tr><td>CH1–CH4</td><td>each track's channel in and out, OFF or 1–16 (default 1, 2, 3, 10). Two tracks never share a channel</td></tr>
+<tr><td>IN</td><td>NOTES (normal) · CLOCK (only the clock and start/stop) · CH 1–16 (only that channel, always on the selected track)</td></tr>
+<tr><td>OTHER</td><td>channels no track has: SEL plays the selected track · OFF ignores them</td></tr>
+<tr><td>OUT</td><td>KEYS: only what you play · SEQ: the sequencer, arp and rolls too</td></tr>
+<tr><td>BEND</td><td>pitch bend range from MIDI IN, 1–12 semitones (default 2)</td></tr>
+<tr><td>FX CH</td><td>OFF or 1–16: that channel's notes F3–G5 (53–79) play the 27 punch-in effects</td></tr>
+<tr><td>DR MAP</td><td>GM (36 kick, 38 snare, 42 hat…) / 1-16 (16 notes in a row from 36 play the 16 sounds)</td></tr>
+<tr><td>REMOTE</td><td>OFF or 1–16: CC 102–115 press the buttons (102 FX, 103 SEL, 104 ENV, 105 LFO, 106 EDIT, 107 GLO, 108 HOME, 109 SAVE, 110 ARP, 111 SEQ, 112 PLAY, 113 REC, 114 OCT−, 115 OCT+)</td></tr>
+<tr><td>CLOCK</td><td>OFF / OUT: sends MIDI clock and start/stop on USB (with SYNC = INT only)</td></tr></table></div>
+<h3>GLO &gt; SYSTEM</h3>
+<div class="dials" data-d="OUT|SYNC|IN|CPU" data-s="KEYS / SEQ|INT · USB · TRS|as on MIDI 2|load, or USB link state"></div>
+<p>SYNC USB follows a computer's MIDI clock: START plays from the top, CONTINUE carries on, STOP stops. On the SMK-37 the jack is an output, so SYNC TRS has no input to follow. Every note is ended on STOP; incoming notes are never sent back.</p>
+<h3>MIDI CCs</h3>
+<div class="tw"><table><tr><th>CC</th><th>sets</th></tr>
+<tr><td>5</td><td>GLIDE</td></tr><tr><td>7</td><td>LEVEL</td></tr><tr><td>10</td><td>PAN</td></tr><tr><td>71</td><td>resonance</td></tr>
+<tr><td>72 · 73 · 75</td><td>release · attack · decay</td></tr><tr><td>74</td><td>the engine's cutoff or brightness (some engines: the track filter)</td></tr>
+<tr><td>91 · 93 · 94</td><td>reverb, chorus, delay sends</td></tr><tr><td>64</td><td>sustain pedal</td></tr><tr><td>pitch bend</td><td>by up to BEND semitones</td></tr><tr><td>Program Change</td><td>loads sound n (drum channel: kit n)</td></tr></table></div>
+<h3>MIDI LEARN</h3>
+<div class="steps">
+<div class="step"><span class="k">GLOBE</span> + F#3: <span class="cw">LEARN: TURN A KNOB</span>.</div>
+<div class="step">Turn the Snoop37 dial you want (any page, or level / pan on TRACKS): <span class="cw">T1 CUT: SEND A CC</span>.</div>
+<div class="step">Move the knob on your other controller: <span class="cw">CC 21 = T1 CUT</span>. Repeat for more (up to 16).</div>
+<div class="step"><span class="k">GLOBE</span> + F#3 again: <span class="cw">LEARN DONE</span>.</div>
+</div>
+<p>HOME menu &gt; SYSTEM &gt; MIDI LEARN CLEAR forgets them.</p>
+</section>
+
+<section class="ch" id="daw" data-g="SETUP" data-t="3">
+<div class="crumb">SETUP &gt; DAW MODE</div>
+<h2>DAW mode</h2>
+<div class="fig"><div class="panel" data-lit="lt:t3 gt:t3 patch:w kb:t2 fb:t2 k1:t3 k2:t3 k3:t3 k4:t3 k5:t3 k6:t3 k7:t3 k8:t3 f1:t3 f2:t3 f3:t3 f4:t3 p1:t1 p2:t1 p3:t1 p4:t1 p5:t1 p6:t1 p7:t1 p8:t1 p9:t1 p10:t1 p11:t1 p12:t1 p13:t1 p14:t1 p15:t1 p16:t1 wp:w wm:w"></div></div>
+<p>Press <span class="k">&lt;</span> + <span class="k">&gt;</span> (or HOME menu &gt; MIDI &gt; MODE) to switch SYNTH ↔ DAW. In DAW mode the keyboard is a MIDI controller on USB (and on the TRS jack with TRS MIDI OUT on). The sequencer stops and the controls leave Snoop37 alone. MIDI IN still plays Snoop37 as a sound module.</p>
+<ul>
+<li><b>Keys</b>: notes on CHANNEL (default 1). The lowest key C3 = note 48 at octave 0. OCTAVE−/+: octave ±3; both: 0.</li>
+<li><b>K1–K8</b> (as printed), <b>FADER 1–4</b>, <b>16 pads</b>, <b>13 buttons</b> and <b>wheels</b> send what the map says. A knob, fader or wheel sends at most every 8 ms.</li>
+<li><span class="k">KNOB BANK</span> / <span class="k">FADER BANK</span>: bank A / B of the knobs / faders (lit on B). Both together: the pads' bank.</li>
+<li><span class="k">PATCH</span> tapped: LOCAL ON / OFF (lit: ON). ON: the keys also play the selected track and NOTE pads the drum kit.</li>
+<li><b>Screen</b>: DAW, channel, LOCAL, the last control touched with its message and value, the banks, the octave, the eight knobs as bars.</li>
+<li><b>Pads</b>: NOTE bank A blue, bank B green; CC yellow; OFF faint.</li>
+</ul>
+<h3>Default map</h3>
+<div class="tw"><table><tr><th>control</th><th>bank A</th><th>bank B</th><th>channel</th></tr>
+<tr><td>K1–K8</td><td>CC 70–77</td><td>CC 102–109</td><td>MAIN</td></tr>
+<tr><td>FADER 1–4</td><td>CC 20–23</td><td>CC 24–27</td><td>MAIN</td></tr>
+<tr><td>PAD 9–16 (bottom)</td><td>notes 36–43</td><td>notes 52–59</td><td>10</td></tr>
+<tr><td>PAD 1–8 (top)</td><td>notes 44–51</td><td>notes 60–67</td><td>10</td></tr>
+<tr><td>&lt; &gt;</td><td>CC 110, 111 (sent when let go)</td><td></td><td>MAIN</td></tr>
+<tr><td>SEQ PLAY, SEQ REC</td><td>CC 115, 117</td><td></td><td>MAIN</td></tr>
+<tr><td>SEQ, FX, PARA</td><td>CC 112, 113, 114</td><td></td><td>MAIN</td></tr>
+<tr><td>ARP, NOTE REPEAT</td><td>CC 118, 119</td><td></td><td>MAIN</td></tr>
+<tr><td>SCALE, CHORD, GLOBE, BT</td><td>CC 85, 86, 87, 88</td><td></td><td>MAIN</td></tr>
+<tr><td>pitch wheel / mod wheel</td><td>pitch bend / CC 1</td><td></td><td>MAIN</td></tr>
+<tr><td>keys</td><td>notes</td><td></td><td>MAIN</td></tr></table></div>
+<p>MAIN = HOME menu &gt; MIDI &gt; CHANNEL. A pad or button CC is 127 while held, 0 when let go.</p>
+<h3>Your own map</h3>
+<div class="steps">
+<div class="step">Hold <span class="k">PATCH</span> + <span class="k">OCTAVE+</span> (or HOME menu &gt; DAW &gt; EDIT MAP).</div>
+<div class="step">Touch a control: turn a knob, move a fader or wheel, hit a pad, press a button.</div>
+<div class="step"><span class="d d1">DIAL 1</span> TYPE (OFF, CC, CC TOGGLE, NOTE, MMC, PITCH BEND) · <span class="d d2">DIAL 2</span> NUMBER · <span class="d d3">DIAL 3</span> CHANNEL (MAIN or 1–16).</div>
+<div class="step"><span class="k">OCTAVE+</span>: next control. <span class="k">OCTAVE−</span>: done. Editing sets CC MAP to USER.</div>
+</div>
+<p>Or use the web editor's <b>DAW MAP</b> tab: the settings and the whole map; send, read, back to default, save / open a file. HOME menu &gt; DAW &gt; CC MAP picks DEFAULT or USER; RESET MAP (OCTAVE+ twice) copies DEFAULT into USER. Without a saved map: SYNTH, channel 1, LOCAL OFF, DEFAULT, ABSOLUTE.</p>
+</section>
+
+<section class="ch" id="usb" data-g="SETUP" data-t="4">
+<div class="crumb">SETUP &gt; USB AUDIO</div>
+<h2>USB audio</h2>
+<p>On USB the keyboard is also an audio input named <b>Felucca</b>: 44.1 or 48 kHz, 16-bit stereo, no driver. Pick it in your DAW, Audacity or a phone app and record the master output. MIDI, the editor and the installer keep working on the same cable.</p>
+<div class="tw"><table><tr><td>HOME menu &gt; AUDIO &gt; USB AUDIO</td><td>MASTER (default): follows K1, keep K1 up · FULL: a fixed level, K1 only sets the headphones</td></tr>
+<tr><td>HOME menu &gt; AUDIO &gt; USB RATE</td><td>AUTO (default) / 44.1 KHZ (try this if a phone records it noisy) / 48 KHZ. Takes effect after you switch off and on (<span class="cw">RESTART</span>)</td></tr></table></div>
+<p>The first time, the computer sees a new device (MIDI + audio) and sets it up again.</p>
+</section>
+
+<section class="ch" id="samples" data-g="SETUP" data-t="5">
+<div class="crumb">SETUP &gt; SAMPLES AND KITS</div>
+<h2>Your own samples and kits</h2>
+<p>Four sample slots, USR1–USR4, about 7.4 s each (22 kHz mono). A slot holds an <b>instrument</b> (synth track: engine SAMPLE, SET = USRn, or GRAIN SRC) or a <b>drum kit</b> (KIT = USRn, or USR3+4 for one big 15 s kit). You fill them from the web editor.</p>
+<div class="note warn"><span class="lab">NOTE</span> USR1 / USR2 are where the M-Vave firmware keeps its key and knob map. The first sample you store there makes the stock firmware rebuild its factory map if you go back.</div>
+<h3>An instrument (editor &gt; Samples)</h3>
+<div class="steps">
+<div class="step">Choose a slot. The page warns before it replaces something.</div>
+<div class="step">Drop up to 16 WAV files (one note each; the note is read from the name, like KEYS_C4.wav), or <b>Chop</b> a recording into up to 16 pieces. Each file has Gain, Match levels, and Loop: ONE SHOT, LOOP or LOOP+TAIL with loop points.</div>
+<div class="step">Name it, <b>Send to USRn</b>, then <b>Play this slot on track 1, 2 or 3</b>.</div>
+</div>
+<p><b>CHOP</b>: TAP (or space) while it plays to cut, Find hits, Grid, Equal parts; keep or drop chops; Fit to slot; Download WAVs; keys 1–0 to listen; double-click / drag / arrows / Del for markers; wheel to zoom.</p>
+<h3>A drum kit (editor &gt; Drum kit)</h3>
+<div class="steps">
+<div class="step">Drop a WAV on each of the 16 pads, or Choose files (sorted by name: kick, snare, hh…). Each pad has Pitch, Gain, Length. Match levels evens them out.</div>
+<div class="step">Pick where it goes: USR3+4 (about 15 s) or one slot.</div>
+<div class="step">Name it, Send, then <b>Use on the drum track</b>. Save as ZIP / Open ZIP to share.</div>
+</div>
+<h3>Synthesised kits SYN1–SYN4 (editor &gt; Drum synth)</h3>
+<p>Pick a kit, name it (8 letters), start from any of the 32 kits. Pick a sound and change Tone (WAVE, PITCH, BEND, HOLD, DECAY, 2ND, CLICK), Noise (NOISE, CLAP, HPF, CHIP), Filter (type, cutoff, res, env) and Out (DRIVE, LEVEL). CRUSH and S&amp;H act on the whole kit. <b>Store on the device</b> keeps the four kits.</p>
+</section>
+
+<section class="ch" id="editor" data-g="SETUP" data-t="6">
+<div class="crumb">SETUP &gt; WEB EDITOR</div>
+<h2>The web editor</h2>
+<p>Open it from the installer page in Chrome or Edge with the keyboard on USB, press <b>Connect</b> and allow MIDI. It follows the keyboard live. It can also be downloaded as one file, or installed as an app (also on Android).</p>
+<div class="tw"><table><tr><th>page</th><th>what you do</th></tr>
+<tr><td>LIVE</td><td>the whole groovebox for a show: transport, sections and chains, mixer, master FX, the 27 punch-ins, keys and pads, scenes and morphs, crossfader, playlist of songs, MIDI learn, stage tools (clock, lock, record set). Computer keys: Space play, 1–4 sections, 5–8 mute, 9 fill, 0 fill bar, B tap, C REC, N next song, Z/X octave, A W S E D… play, F1–F8 scenes, Esc all off</td></tr>
+<tr><td>Sound</td><td>every parameter of the selected track as cards (ENV, LFO, EDIT, VOICE, FX, SEL, ARP); Engine and Presets pickers, Init sound, Copy to library, Save to file / Load file. FM6 panel: the six operators, Read from track, Send to track (Send while editing), Store in bank (B1–B27), Import SysEx (or drop a .syx), Store cartridge in bank (and as user presets), Export SysEx, Export bank as SysEx. Drum track: kit, level, pan, filter, reverb, delay, insert and each pad's tune / decay (all pads as the kit resets them)</td></tr>
+<tr><td>Sequencer</td><td>LEN, DIV, SWG, GATE and the steps as tiles; a step list that takes typed notes (C4 E4 G4). Drum grid: pick a level and roll, click a cell to set, again to clear, Shift+click one level louder. Step detail: nudge, parameter locks, fill. Reload, Clear sequence, Length. Piano roll: pick a note length, click to add or remove, drag a note's end. Export MIDI (the pattern as a .mid file) / Import MIDI (with a preview of what changes)</td></tr>
+<tr><td>Tracks</td><td>four channel strips: level, pan, mute, select</td></tr>
+<tr><td>Song</td><td>the song order: sections, bars, repeats; read / send</td></tr>
+<tr><td>Library</td><td>your sound library in the browser: Save current sound, search, filter by engine, sort, Audition, To device slot, Rename, Tags, Duplicate, Delete, Export / Import / Export library. Next to it the 32 user presets on the keyboard: Load, Store current sound, To library, Erase, Export bank. Drag sounds between them</td></tr>
+<tr><td>Samples, Drum kit, Drum synth</td><td>your own sounds (<a href="#samples">Samples and kits</a>)</td></tr>
+<tr><td>Projects</td><td>sections A–D, song files (.sloopsong), Backup</td></tr>
+<tr><td>Settings</td><td>GLOBAL, MASTER, DRUMS, system info, Prepare the return to M-Vave</td></tr>
+<tr><td>Theme</td><td>your own screen colours: five steps (Lines, Dim, Labels, Secondary, Values; Start from a palette, or Five steps from one colour), Background (Back to black, Light ↔ dark), Accent, the four track colours, a Name of 8 letters. Send to the keyboard (stopped), Read, Remove; Make it readable fixes colours too close to the background. Share: one SLOOP-THEME-1 text line. Then pick it in HOME menu &gt; SCREEN &gt; COLOR, after MONO</td></tr>
+<tr><td>DAW MAP</td><td>SMK-37 only: the DAW mode settings and map</td></tr></table></div>
+<p>Values: drag a tile up / down like a knob (Shift: fine), or click a bar and use the wheel or arrows (Shift: steps of 10); double-click resets. The editor writes to flash only while the song is stopped. Try it without hardware: add <code>?mock=1</code> to its address.</p>
+<h3>LIVE page in more detail</h3>
+<ul>
+<li><b>Sections or scenes?</b> Sections A–D change what plays (the notes). Scenes change how it sounds (levels, filters, effects), never the notes.</li>
+<li><b>Scenes</b> (8): Store, then a scene pad keeps every track's mix and sound knobs and the master bus; + sounds also keeps presets and kit, + tempo the BPM. A tap recalls it at once or morphs over 1–16 bars. The crossfader mixes scenes A and B.</li>
+<li><b>Punch-in pads</b>: hold for the effect; Latch makes a tap turn it on and another tap off.</li>
+<li><b>Perform</b> tabs: sound, arp &amp; key (for every synth track at once if you want), insert &amp; bus, steps.</li>
+<li><b>Live tools</b>: play chain, roll / erase while held, shift ◀ ▶, ½ / ×2 length, transpose, each pad's tune and decay, rev throw / echo throw, volume.</li>
+<li><b>Playlist</b>: export each song (Projects &gt; Export this song), add songs, tap one or next song (N); play when loaded starts it. ✎ gives a song a tempo and a cue. Save the list for a gig.</li>
+<li><b>Stage tools</b>: the clock and the set's time, lock (hold to unlock), record set (USB audio to a WAV). Full screen. All off. View: essentials / everything. First live in 5 steps shows the basics.</li>
+</ul>
+</section>
+
+<section class="ch" id="rescue" data-g="SETUP" data-t="7">
+<div class="crumb">SETUP &gt; RESCUE</div>
+<h2>Backup, rescue, troubleshooting</h2>
+<h3>Backup and restore</h3>
+<p>Editor &gt; Projects &gt; Backup. <b>Save a backup</b> writes everything to one file: the working loop, sections A–D, 32 user presets, the FM6 bank, SYN kits, samples USR1–USR4 and settings. <b>Restore from a file</b> puts it all back (stop the song first). A damaged file is refused before anything is written. Save a backup before every update.</p>
+<h3>Rescue and special modes</h3>
+<div class="tw"><table><tr><th>situation</th><th>do</th></tr>
+<tr><td>does not start</td><td>hold OCTAVE− while switching on (USB RESCUE), install again</td></tr>
+<tr><td>install stopped half-way</td><td>it waits in update mode: press Install again</td></tr>
+<tr><td>buttons or knobs do the wrong thing</td><td>hold OCTAVE− + OCTAVE+ while switching on, or HOME menu &gt; SYSTEM &gt; HARDWARE CALIBRATION</td></tr>
+<tr><td>need UBOOT</td><td>hold OCTAVE− + OCTAVE+ 5 s while stopped</td></tr></table></div>
+<h3>Hardware calibration</h3>
+<p>Press each button and turn each knob as the screen names it (K2 SELECT, K3 ALGORITHM, K4 PRESETS, K5–K8), then teach the wheels (<a href="#wheels">Wheels</a>). OCTAVE+ takes each step. 30 s without input keeps the old setup.</p>
+<h3>Troubleshooting</h3>
+<div class="tw"><table><tr><th>problem</th><th>fix</th></tr>
+<tr><td>installer or editor does not find it</td><td>Chrome or Edge, data cable, no hub, allow MIDI; close other MIDI apps, reload</td></tr>
+<tr><td>black keys silent on a synth track</td><td>chords or scale are on: SEL &gt; CHORD OFF and KEYS OFF</td></tr>
+<tr><td>recorded notes move</td><td>REC screen QUANT off, or DIV 1/32, or nudge the step</td></tr>
+<tr><td>notes fade on a dense part</td><td>CPU limit: fewer notes or a lighter engine; check SYSTEM &gt; 2ND CORE is ON</td></tr>
+<tr><td>a synth on the TRS jack does not respond</td><td>TRS MIDI OUT ON; try a type B adapter; check the channel</td></tr>
+<tr><td>USB audio input missing</td><td>replug; in Audacity: Transport &gt; Rescan Audio Devices</td></tr>
+<tr><td>USB recording quiet</td><td>USB AUDIO = FULL, or K1 up</td></tr>
+<tr><td>USB recording noisy on a phone</td><td>USB RATE = 44.1 KHZ, then switch off and on</td></tr>
+<tr><td>held chords get quieter</td><td>LIMITER = SOFT (default) and turn K1 up</td></tr>
+<tr><td>keys feel too soft or hard</td><td>KEY VELOCITY</td></tr>
+<tr><td>knobs in odd places</td><td>KNOB LAYOUT</td></tr>
+<tr><td>STOP THE SONG FIRST / STOP FIRST</td><td>that change waits until stopped</td></tr>
+<tr><td>EMPTY SECTION: REC</td><td>save a loop into it first (BT + 5–8)</td></tr>
+<tr><td>keyboard sends MIDI but plays no sound</td><td>you are in DAW mode with LOCAL OFF: &lt; + &gt; back to SYNTH</td></tr></table></div>
+</section>
+
+<section class="ch" id="cheat" data-g="SETUP" data-t="8">
+<div class="crumb">SETUP &gt; CHEAT SHEET</div>
+<h2>Cheat sheet</h2>
+<h3>Buttons alone</h3>
+<div class="tw"><table><tr><td>SEQ PLAY</td><td>start / stop</td></tr><tr><td>SEQ REC</td><td>record / arm / close a free take · hold 2 s: clear track</td></tr>
+<tr><td>PATCH</td><td>TRACKS · on TRACKS: visualiser · hold: menu</td></tr><tr><td>BT</td><td>on TRACKS: SONG · else SAVE pages</td></tr>
+<tr><td>CHORD, NOTE REPEAT, FX, SCALE, PARA, ARP, SEQ, GLOBE</td><td>their pages (again: next page)</td></tr>
+<tr><td>PARA / SEQ on TRACKS, drum track</td><td>DRUMS screen</td></tr>
+<tr><td>OCTAVE− / +</td><td>octave (both: 0) · drums: ghost / hard</td></tr>
+<tr><td>KNOB BANK · FADER BANK</td><td>pin pad picker · fader banks A–D</td></tr>
+<tr><td>&lt; &gt;</td><td>pages · step pages · visualiser style</td></tr>
+<tr><td>K1 K2 K3 K4</td><td>volume · tempo / pages · track · sound / kit</td></tr></table></div>
+<h3>Layers</h3>
+<div class="tw"><table><tr><th>hold +</th><th>keys / pads</th><th class="c1">1</th><th class="c2">2</th><th class="c3">3</th><th class="c4">4</th><th>other</th></tr>
+<tr><td>FX</td><td>27 punch-ins</td><td>master FILT</td><td>DUST</td><td>DUCK</td><td>track FILT</td><td>OCT−/+ throws</td></tr>
+<tr><td>PARA</td><td>erase · black key: drum mute</td><td>SHIFT</td><td>LEN ×2 / ½</td><td>TRANSP</td><td>—</td><td>OCT− undo · OCT+ redo</td></tr>
+<tr><td>ARP</td><td>note repeat</td><td>RATE</td><td>—</td><td>—</td><td>—</td><td>OCT−/+ ghost / hard</td></tr>
+<tr><td>SEQ</td><td>steps · black 1–4: page</td><td>SOUND/NOTE</td><td>DIV</td><td>SWING</td><td>LENGTH</td><td>OCT−/+, &lt; &gt;: page</td></tr>
+<tr><td>SEQ + step</td><td>more steps</td><td>sound / NOTE</td><td>LEVEL / VEL</td><td>RATCHET</td><td>NUDGE</td><td>K4 lock · K3 param · OCT+ fill · OCT− clear</td></tr>
+<tr><td>SCALE</td><td>key of the song</td><td>CHORD</td><td>SCALE</td><td>KEYS</td><td>TRANSP</td><td>pads = piano</td></tr>
+<tr><td>GLOBE</td><td>mute · solo · fill · bar · tap · F#3 learn</td><td>lvl 1</td><td>lvl 2</td><td>lvl 3</td><td>lvl 4</td><td>K2 tempo</td></tr>
+<tr><td>BT</td><td>play A–D · save A–D · loop/song · SONG REC · SONG</td><td>—</td><td>—</td><td>—</td><td>—</td><td>several 1–4: chain</td></tr>
+<tr><td>any layer + PATCH</td><td colspan="6">lock it open</td></tr></table></div>
+<h3>Chord mode</h3>
+<div class="tw"><table><tr><td>white key</td><td>the scale's chord (C4 = I)</td></tr><tr><td>+ F#</td><td>major ↔ minor</td></tr><tr><td>+ G#</td><td>+7th</td></tr><tr><td>+ A#</td><td>sus4</td></tr><tr><td>+ C#</td><td>+9th</td></tr><tr><td>+ D#</td><td>inversion</td></tr></table></div>
+<h3>Special</h3>
+<div class="tw"><table><tr><td>OCTAVE− at power-on</td><td>USB rescue</td></tr><tr><td>OCTAVE− + OCTAVE+ at power-on</td><td>calibration</td></tr>
+<tr><td>OCTAVE− + OCTAVE+ 5 s, stopped</td><td>UBOOT</td></tr><tr><td>KNOB BANK + FADER BANK</td><td>pads DRUM KIT ↔ STEPS</td></tr>
+<tr><td>&lt; + &gt;</td><td>SYNTH ↔ DAW</td></tr><tr><td>PATCH + OCTAVE+ (DAW)</td><td>map editor</td></tr>
+<tr><td>GO values</td><td>one click arms, a second within 1.5 s acts</td></tr></table></div>
+<h3>Where is…?</h3>
+<div class="tw"><table>
+<tr><td>tempo</td><td>K2 on TRACKS · GLOBE + 16 · GLO &gt; GLOBAL &gt; BPM</td></tr>
+<tr><td>swing</td><td>TRACKS dial 1 · SEQ + dial 3 · GLO &gt; GLOBAL</td></tr>
+<tr><td>metronome</td><td>GLO &gt; GLOBAL &gt; CLICK</td></tr>
+<tr><td>a track's level / pan</td><td>fader bank A · TRACKS dial 2 / dial 4 · GLOBE + dial 1–4</td></tr>
+<tr><td>drum kit</td><td>K4 on the drum track · DRUMS kit page</td></tr>
+<tr><td>a track's filter</td><td>fader bank B · FX + dial 4 · FX &gt; FILTER</td></tr>
+<tr><td>reverb / delay per track</td><td>fader banks C / D · FX page</td></tr>
+<tr><td>delay time</td><td>FX &gt; DLY &gt; TIME</td></tr>
+<tr><td>chords, STRUM, VLEAD</td><td>SCALE + dial 1 · SEL 2</td></tr>
+<tr><td>sections</td><td>BT + 1–4 / 5–8 · SAVE &gt; SECTION</td></tr>
+<tr><td>your sounds</td><td>SAVE &gt; USER · K4 after factory sounds</td></tr>
+<tr><td>each track's MIDI channel</td><td>GLO &gt; MIDI</td></tr>
+<tr><td>vinyl / tape / rain bed</td><td>GLO &gt; TEXTURE</td></tr>
+<tr><td>velocity, bend range, limiter, pad light</td><td>hold PATCH (menu)</td></tr>
+<tr><td>version</td><td>hold PATCH &gt; SYSTEM &gt; ABOUT</td></tr></table></div>
+<p class="cd">Snoop37 is SLOOP by isod89, based on Felucca by Leo Kuroshita / Hügelton Instruments, with SMK-37 support by genkigenki. GPL-3.0. Screen font: Terminus (SIL OFL 1.1). M-Vave, SMK-37 and FM-1 are names of their owners; this project is not affiliated with them.</p>
+</section>
+
+<div class="empty" id="empty">NO MATCH. TRY ANOTHER WORD.</div>
+</main>
+</div>
+<div class="foot"><span>&lt; &gt; CHAPTER</span><span>/ SEARCH</span><span>DRAWINGS SIMPLIFIED</span></div>
+
+<script>
+(function(){
+const NS="http://www.w3.org/2000/svg";
+const COL={t1:"#287cff",t2:"#1ecc70",t3:"#ffc618",t4:"#ff621a",w:"#f2f2f2",r:"#ff2c34",s:"#36363c",o:"#0b0b0e"};
+const TXT={t1:"#000",t2:"#000",t3:"#000",t4:"#000",w:"#000",r:"#000",s:"#c4c4cc",o:"#36363c"};
+function el(n,a,p){const e=document.createElementNS(NS,n);for(const k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function txt(p,x,y,s,c,sz,anc){const t=el("text",{x:x,y:y,fill:c,"font-size":sz||12,"text-anchor":anc||"middle","font-family":"SLOOP Terminus, monospace"},p);t.textContent=s;return t}
+const WH=["C","D","E","F","G","A","B"];
+function keyList(){const w=[];for(let o=3;o<=6;o++)for(const n of WH){if(o===6&&n!=="C")break;w.push(n+o)}return w}
+function inRange(n,lo,hi){const idx=k=>{const m=k.match(/^([A-G])(#?)(\d)$/);return (+m[3])*12+[0,2,4,5,7,9,11]["CDEFGAB".indexOf(m[1])]+(m[2]?1:0)};const v=idx(n);return v>=idx(lo)&&v<=idx(hi)}
+function drawPanel(div){
+  const lit={};(div.dataset.lit||"").split(/\s+/).filter(Boolean).forEach(s=>{const [k,c]=s.split(":");lit[k]=c||"t3"});
+  const svg=el("svg",{viewBox:"0 0 1000 330",role:"img","aria-label":"SMK-37 panel, schematic top view"});
+  const cy="#38acde",pk="#e14bd0",dim="#36363c",lab="#76767e";
+  const F=id=>lit[id]?COL[lit[id]]:"none",S=(id,d)=>lit[id]?COL[lit[id]]:d,T=(id,d)=>lit[id]?"#000":d;
+  el("rect",{x:4,y:4,width:992,height:322,rx:10,fill:"none",stroke:cy,"stroke-width":1.5},svg);
+  // wheels, top left
+  [["wp","PITCH",22],["wm","MOD",72]].forEach(([id,l,x])=>{
+    txt(svg,x+20,28,l,S(id,lab),12);
+    el("rect",{x:x,y:36,width:40,height:96,rx:8,fill:F(id),stroke:S(id,cy)},svg);
+    el("line",{x1:x+6,y1:84,x2:x+34,y2:84,stroke:lit[id]?"#000":cy},svg)});
+  txt(svg,62,166,"M-VAVE",dim,18);
+  // power button and screen
+  el("rect",{x:142,y:12,width:14,height:10,fill:"#ff2c34"},svg);
+  el("rect",{x:142,y:26,width:82,height:72,fill:lit.scr?"#0b0b0e":"none",stroke:S("scr",cy)},svg);
+  txt(svg,183,66,"SCREEN",S("scr",lab),12);
+  // six buttons under the screen: KNOB BANK FADER BANK / < > / OCTAVE- OCTAVE+
+  txt(svg,183,112,"PAD BANK",lab,10);
+  [[["kb","KNOB BK"],["fb","FADER BK"]],[["lt","<"],["gt",">"]],[["om","OCT−"],["op","OCT+"]]].forEach((row,r)=>row.forEach(([id,l],c)=>{
+    const x=140+c*44,y=118+r*24;
+    el("rect",{x:x,y:y,width:40,height:18,rx:3,fill:F(id),stroke:S(id,cy)},svg);
+    txt(svg,x+20,y+13,l,T(id,"#c4c4cc"),l.length>5?8:11)}));
+  // eight knobs in one row, the 16 pads under them
+  for(let i=0;i<8;i++){const x=275+i*60,id="k"+(i+1);
+    txt(svg,x,20,"K"+(i+1),S(id,lab),12);
+    el("circle",{cx:x,cy:44,r:16,fill:F(id),stroke:S(id,cy)},svg);
+    el("line",{x1:x,y1:44,x2:x,y2:31,stroke:lit[id]?"#000":cy},svg)}
+  for(let i=0;i<16;i++){const c=i%8,r=i<8?0:1,id="p"+(i+1),x=251+c*60,y=72+r*56;
+    el("rect",{x:x,y:y,width:48,height:48,rx:4,fill:F(id),stroke:S(id,r?"#7f5cff":pk)},svg);
+    txt(svg,x+24,y+30,String(i+1),T(id,lab),14)}
+  // four faders, top right
+  for(let i=0;i<4;i++){const x=782+i*56,id="f"+(i+1);
+    txt(svg,x,20,"FADER"+(i+1),S(id,lab),10);
+    el("rect",{x:x-3,y:28,width:6,height:84,fill:dim},svg);
+    el("rect",{x:x-16,y:i%2?50:78,width:32,height:14,rx:2,fill:F(id),stroke:S(id,cy)},svg)}
+  // twelve buttons under the faders
+  const B=[[["arp","ARP"],["nrep","N.REP"],["scale","SCALE"],["chord","CHORD"],["globe","GLOBE"],["bt","BT"]],
+           [["patch","PATCH"],["para","PARA"],["fx","FX"],["seq","SEQ"],["play","PLAY"],["rec","REC"]]];
+  el("rect",{x:748,y:128,width:242,height:56,rx:6,fill:"none",stroke:dim},svg);
+  B.forEach((row,r)=>row.forEach(([id,l],c)=>{const x=752+c*39.5,y=133+r*25;
+    el("rect",{x:x,y:y,width:36,height:21,rx:3,fill:F(id),stroke:S(id,cy)},svg);
+    txt(svg,x+18,y+15,l,T(id,"#c4c4cc"),10)}));
+  // 37 keys C3..C6 along the whole front
+  const ws=keyList(),x0=14,kw=(986-x0)/ws.length,y0=196,kh=124;
+  const zone=n=>inRange(n,"C3","E3")?"lo":inRange(n,"F3","G5")?"mid":"hi";
+  ws.forEach((n,i)=>{const z=zone(n),c=lit[n]||lit[z];
+    el("rect",{x:x0+i*kw,y:y0,width:kw-2,height:kh,fill:c?COL[c]:"#0b0b0e",stroke:cy,"stroke-width":.8},svg);
+    if(n[0]==="C"||n==="F3"||n==="G5")txt(svg,x0+i*kw+kw/2-1,y0+kh-8,n,c?"#000":lab,13)});
+  ws.forEach((n,i)=>{if("CDFGA".indexOf(n[0])<0||i===ws.length-1)return;const b=n[0]+"#"+n.slice(1),z=zone(b),c=lit[b]||lit[z];
+    el("rect",{x:x0+i*kw+kw*.65,y:y0,width:kw*.66,height:kh*.6,fill:c?COL[c]:"#000",stroke:c?COL[c]:pk,"stroke-width":.8},svg)});
+  div.appendChild(svg)}
+function drawPads(div){
+  const L=div.dataset.l.split("|"),C=div.dataset.c.split(",");
+  const svg=el("svg",{viewBox:"0 0 1000 220",role:"img","aria-label":"The 16 pads"});
+  for(let i=0;i<16;i++){const c=i%8,r=i<8?0:1,x=10+c*124,y=10+r*104,k=C[i]||"s",bg=COL[k];
+    el("rect",{x:x,y:y,width:114,height:94,rx:4,fill:k==="o"?"none":bg,stroke:k==="o"?"#232329":bg},svg);
+    if(L[i]!==String(i+1))txt(svg,x+8,y+18,String(i+1),TXT[k],12,"start");
+    const l=L[i]||"",parts=l.length>9&&l.indexOf(" ")>0?[l.slice(0,l.indexOf(" ")),l.slice(l.indexOf(" ")+1)]:[l];
+    parts.forEach((p,j)=>txt(svg,x+57,y+56+j*18-(parts.length-1)*9,p,TXT[k],15))}
+  div.appendChild(svg)}
+function drawDials(div){
+  const D=div.dataset.d.split("|"),S=(div.dataset.s||"").split("|"),cols=["t1","t2","t3","t4"];
+  D.forEach((d,i)=>{const w=document.createElement("div");w.className="dial";
+    const s=el("svg",{viewBox:"0 0 28 28"},w);const c=COL[cols[i]];
+    el("circle",{cx:14,cy:14,r:11,fill:"none",stroke:"#36363c","stroke-width":3},s);
+    el("path",{d:"M6.2 21.8 A11 11 0 1 1 21.8 21.8",fill:"none",stroke:c,"stroke-width":3},s);
+    el("line",{x1:14,y1:14,x2:14,y2:5,stroke:"#f2f2f2","stroke-width":2},s);
+    const t=document.createElement("div");t.className="t";t.innerHTML='<b style="color:'+c+'">'+d+'</b><span></span>';t.querySelector("span").textContent=S[i]||"";
+    w.appendChild(t);div.appendChild(w)})}
+document.querySelectorAll(".panel").forEach(drawPanel);
+document.querySelectorAll(".pads").forEach(drawPads);
+document.querySelectorAll(".dials").forEach(drawDials);
+
+// navigation
+const secs=[...document.querySelectorAll("section.ch")],side=document.getElementById("side"),tabs=document.getElementById("tabs");
+const groups=[...new Set(secs.map(s=>s.dataset.g))],gcol={START:"t1",PLAY:"t2",MAKE:"t3",SOUND:"t4",SETUP:"s"};
+const gd={START:"#0e2856",PLAY:"#0a4226",MAKE:"#564208",SOUND:"#562008",SETUP:"#36363c"};
+const links={};
+groups.forEach(g=>{const t=document.createElement("a");t.className="tab";t.textContent=g;t.href="#"+secs.find(s=>s.dataset.g===g).id;t.dataset.g=g;tabs.insertBefore(t,tabs.lastElementChild);
+  const h=document.createElement("div");h.className="g";h.textContent=g;h.dataset.g=g;side.appendChild(h);
+  secs.filter(s=>s.dataset.g===g).forEach(s=>{const a=document.createElement("a");a.href="#"+s.id;
+    a.innerHTML='<span class="n"></span><span class="l"></span>';a.querySelector(".n").textContent=s.dataset.t;a.querySelector(".l").textContent=s.querySelector("h2").textContent.toLowerCase();
+    a.querySelector(".n").style.background=gd[g];a.querySelector(".n").style.color="#c4c4cc";side.appendChild(a);links[s.id]=a})});
+const ctr=document.getElementById("ctr");let cur=null;
+function setCur(s){if(!s||s===cur)return;cur=s;const g=s.dataset.g,n=secs.filter(x=>x.dataset.g===g);
+  ctr.textContent=g+" "+s.dataset.t+"/"+n.length;
+  secs.forEach(x=>{const a=links[x.id],n=a.querySelector(".n");a.classList.remove("on");n.style.background=gd[x.dataset.g];n.style.color="#c4c4cc"});
+  const a=links[s.id],an=a.querySelector(".n");a.classList.add("on");an.style.background=gcol[g]==="s"?"#c4c4cc":COL[gcol[g]];an.style.color="#000";
+  tabs.querySelectorAll(".tab").forEach(t=>t.classList.toggle("on",t.dataset.g===g));
+  document.documentElement.style.setProperty("--trk","var(--"+(gcol[g]==="s"?"fg2":gcol[g])+")")}
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)setCur(e.target)})},{rootMargin:"-90px 0px -70% 0px"});
+secs.forEach(s=>io.observe(s));setCur(secs[0]);
+const mb=document.getElementById("menuBtn");mb.onclick=()=>side.classList.toggle("open");
+side.addEventListener("click",e=>{if(e.target.closest("a"))side.classList.remove("open")});
+function go(d){const vis=secs.filter(s=>!s.classList.contains("hide"));let i=vis.indexOf(cur);i=Math.max(0,Math.min(vis.length-1,i+d));vis[i].scrollIntoView({behavior:"smooth"})}
+// search
+const q=document.getElementById("q"),empty=document.getElementById("empty");
+q.addEventListener("input",()=>{const v=q.value.trim().toLowerCase();let any=false;
+  secs.forEach(s=>{const hit=!v||s.textContent.toLowerCase().includes(v);s.classList.toggle("hide",!hit);links[s.id].classList.toggle("hide",!hit);if(hit)any=true});
+  side.querySelectorAll(".g").forEach(h=>{h.style.display=secs.some(s=>s.dataset.g===h.dataset.g&&!s.classList.contains("hide"))?"":"none"});
+  empty.style.display=any?"none":"block"});
+document.addEventListener("keydown",e=>{if(e.target===q){if(e.key==="Escape"){q.value="";q.dispatchEvent(new Event("input"));q.blur()}return}
+  if(e.key==="/"){e.preventDefault();q.focus()}else if(e.key==="ArrowRight"||e.key===">")go(1);else if(e.key==="ArrowLeft"||e.key==="<")go(-1)});
+if(location.hash){const t=document.getElementById(location.hash.slice(1));if(t)setTimeout(()=>t.scrollIntoView(),50)}
+})();
+</script>
+</body>
+</html>
