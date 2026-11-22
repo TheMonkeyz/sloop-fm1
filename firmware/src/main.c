@@ -211,6 +211,9 @@ UI_SMALL static void fm1_fault(const fm1_crash_t *c)
 {
     char b[12];
     uint32_t t0;
+#if SNOOP_MIRROR
+    mirror_on = 0;                                      /* interrupts may be off: nothing would read the stream */
+#endif
     if (fm1_c1_on)                                      /* (2.8.3, X0X ed35a45) a crash beside the second core: one */
         fm1_cpu1_bar();                                 /* core until power-off (a misread on core 0 can't be caught) */
     fm1_audio_stop();
@@ -493,6 +496,10 @@ UI_SMALL static void fm1_main(void)
         padled_flush();                                 /* the pads' colours, between LCD transfers */
 #endif
         ui_draw();
+#if SNOOP_MIRROR
+        if (mirror_frame_end())                         /* the viewer lost part of the picture: all of it again */
+            ui.force = 1;
+#endif
         felucca_dbg.stage = 8;
         autosave_tick();                                /* the working project into flash, when quiet */
 #if FELUCCA_ARRANGER

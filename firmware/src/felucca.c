@@ -39,6 +39,13 @@
 #if BOARD_SMK37
 #include "smk_padlight.h"     /* SMK-37: menu PAD LIGHT, every pad colour through it (lcd.c padled_set) */
 #endif
+#ifndef SNOOP_MIRROR
+#define SNOOP_MIRROR 0           /* 1: the screen mirror: what the LCD shows goes out on the USB cable for a viewer
+                                  * (mirror.c, usb.c: a vendor interface on EP4, so no USB audio in this build) */
+#endif
+#if SNOOP_MIRROR
+#include "mirror.c"
+#endif
 #include "lcd.c"
 #include "gfx.c"
 #include "core.h"
@@ -71,6 +78,10 @@
 #ifndef FELUCCA_CDC
 #define FELUCCA_CDC 0            /* USB CDC-ACM serial console, a developer's tool (menu USB SERIAL). 2.7: out of the FM-1
                                   * build (its 6-8 KB: the flash is full); FELUCCA_CDC=1 builds it back */
+#endif
+#if SNOOP_MIRROR                         /* the mirror stream takes the audio input's endpoint (EP4) */
+#undef FELUCCA_UAC
+#define FELUCCA_UAC 0
 #endif
 #ifndef FELUCCA_UAC                      /* (before usb.c: it defaults to 0) */
 #define FELUCCA_UAC 1            /* USB audio input: the master output, 16-bit stereo 44.1 kHz (usb.c, after Felucca 1.0) */

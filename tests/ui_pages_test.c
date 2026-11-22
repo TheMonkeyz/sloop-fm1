@@ -33,12 +33,22 @@
 #define VIS_LAST_NAMES "SLOOP"
 #define VIS_N_STR "/12"
 static uint16_t screen[240*240];
+/* (tests/mirror_test.c: what the panel gets, copied to the screen mirror; after every UI pass) */
+#ifndef LCD_HOOK_BLIT
+#define LCD_HOOK_BLIT(x, y, w, h, p) (void)0
+#endif
+#ifndef LCD_HOOK_FILL
+#define LCD_HOOK_FILL(x, y, w, h, c) (void)0
+#endif
+#ifndef UI_PASS_HOOK
+#define UI_PASS_HOOK() (void)0
+#endif
 static void lcd_sync(void) {}
 static void lcd_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const uint16_t *p)
-{ uint32_t i,j; assert(x+w<=240 && y+h<=240); for(j=0;j<h;j++) for(i=0;i<w;i++) screen[(y+j)*240+x+i]=p[j*w+i]; }
+{ uint32_t i,j; assert(x+w<=240 && y+h<=240); for(j=0;j<h;j++) for(i=0;i<w;i++) screen[(y+j)*240+x+i]=p[j*w+i]; LCD_HOOK_BLIT(x,y,w,h,p); }
 #include "../firmware/src/gfx.c"
 static void lcd_fill(uint32_t x,uint32_t y,uint32_t w,uint32_t h,uint16_t c)
-{ uint32_t i,j; assert(x+w<=240&&y+h<=240); for(j=0;j<h;j++)for(i=0;i<w;i++)screen[(y+j)*240+x+i]=swap16(c); }
+{ uint32_t i,j; assert(x+w<=240&&y+h<=240); for(j=0;j<h;j++)for(i=0;i<w;i++)screen[(y+j)*240+x+i]=swap16(c); LCD_HOOK_FILL(x,y,w,h,c); }
 static int32_t encs[7];
 static uint32_t fm1_ticks(void) { return fm1_ms * 1000u * 24u; }
 #define FM1_TICKS_PER_US 24u
@@ -149,7 +159,7 @@ static void frame(void)
             scope_buf[scope_w++ & (SCOPE_N - 1u)] = vis_tap[2u * i];
         }
     }
-    ui_input(); ui_leds(); ui_draw(); fm1_ms += 16;
+    ui_input(); ui_leds(); ui_draw(); UI_PASS_HOOK(); fm1_ms += 16;
 }
 static void frames(uint32_t n) { while (n--) frame(); }
 static uint32_t BT(uint32_t b) { return 1u << panel.btn[b]; }
@@ -162,7 +172,10 @@ static void check(int ok, const char *what) { printf("ui: %-74s %s\n", what, ok 
 static const char *sub_line(void) { return layer_sub_shown; }   /* the layer's sub line as last drawn (ui_layers.c) */
 
 #ifndef UI_PAGES_HARNESS_ONLY                       /* (tests/stress_test.c: the harness, its own main) */
-int main(int argc, char **argv)
+#ifndef UI_PAGES_MAIN
+#define UI_PAGES_MAIN main                          /* (tests/mirror_test.c runs it under its own main) */
+#endif
+int UI_PAGES_MAIN(int argc, char **argv)
 {
     uint32_t i;
     outdir = argc > 1 ? argv[1] : "build/host";

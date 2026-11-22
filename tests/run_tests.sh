@@ -83,6 +83,9 @@ run "after Felucca 1.4 / 1.5: INSERT, filter TYPE, ENV SYNC, LFO 2, drum mutes, 
 
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/ui_pages_test" tests/ui_pages_test.c -lm
 run "live UI: pages, layers (punch, steps, erase, roll, key, mix), holds, drums, REC, fuzz" "$OUT/ui_pages_test" "$OUT"
+mkdir -p "$OUT/mirror"
+$CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/mirror_test" tests/mirror_test.c -lm
+run "Snoop37 screen mirror: every screen through the encoder and the viewer's decoder, packet losses, decoder fuzz" "$OUT/mirror_test" "$OUT/mirror"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/pick_test" tests/pick_test.c -lm
 run "SMK-37 Pro pad sound picker: pages by kind, pads load, < >, drum kits" "$OUT/pick_test" "$OUT"
 $CC -O2 -w -Ibuild/gen -Ifirmware/src -Ifirmware/hal -o "$OUT/fbank_test" tests/fbank_test.c -lm
@@ -206,6 +209,8 @@ run "stress (2.4): FONT_L = FONT_S at 2x, hard random use of every 2.4 addition,
 ASAN="${CC_UB:-cc} -O1 -g -w -fsanitize=address,undefined -fno-sanitize=shift-base,signed-integer-overflow -fno-sanitize-recover=all -Ibuild/gen -Ifirmware/src -Ifirmware/hal"
 if $ASAN -o "$OUT/stress_asan" tests/stress_test.c -lm 2>/dev/null; then
     run "stress under ASan + UBSan (no access out of bounds)" "$OUT/stress_asan" "${STRESS_ASAN_FRAMES:-15000}" 7
+    $ASAN -o "$OUT/mirror_asan" tests/mirror_test.c -lm &&
+        run "screen mirror under ASan + UBSan (the decoder fed random and damaged packets)" env FUZZ_N="${MIRROR_FUZZ_N:-1000000}" "$OUT/mirror_asan" "$OUT/mirror" || fail=1
 else
     echo "(stress under ASan: this compiler has no AddressSanitizer, skipped)"
 fi
@@ -233,6 +238,8 @@ run "USB audio input, menu USB RATE 48 (2.7): descriptors, ring and packets" "$O
 $CC -w -DT_CDC=0 -DFELUCCA_UAC_48K=0 -DHALF_FRAMES=$HALF -o "$OUT/uac_test_no48" tests/uac_test.c -lm
 run "USB RATE 44.1: the descriptors of a build without 48 kHz (SLOOP 2.4), byte for byte" \
     sh -c "[ \"\$(UAC_DUMP=1 '$OUT/uac_test_441' | tail -n 2)\" = \"\$(UAC_DUMP=1 '$OUT/uac_test_no48' | tail -n 2)\" ] && echo same"
+$CC -Ifirmware/src -Ifirmware/hal -o "$OUT/usb_mirror_test" tests/usb_mirror_test.c
+run "USB, SNOOP_MIRROR=1: the vendor interface (EP4 isochronous), SET_INTERFACE / GET_INTERFACE / RESYNC, the packets" "$OUT/usb_mirror_test"
 uac_in_app() { ${CC%% *} -E -Ibuild/gen -Ifirmware/hal -Ifirmware/src firmware/src/felucca.c 2>/dev/null | grep -q uac_service; }
 run "USB audio input: built into the firmware (FELUCCA_UAC set before usb.c)" uac_in_app
 

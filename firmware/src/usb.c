@@ -180,8 +180,18 @@ static void midi_out_event(uint32_t pkt)            /* from the audio ISR */
 #define UAC_BCD_AS (0x08 * FELUCCA_UAC)
 #define CDC_IF (2 + FELUCCA_UAC)
 #define UAC_AS_IF 2u
-#define CFG_LEN (101 + 74 * FELUCCA_CDC + 74 * FELUCCA_UAC + 3 * FELUCCA_UAC_48K)
-#define USB_NIF (2 + FELUCCA_UAC + 2 * FELUCCA_CDC)
+#ifndef SNOOP_MIRROR
+#define SNOOP_MIRROR 0
+#endif
+/* SNOOP_MIRROR=1 (Snoop37, mirror.c): the screen for a viewer, a vendor interface after MIDI: alt 0 nothing, alt 1 an
+ * isochronous IN endpoint (EP4, the audio input's: a mirror build has no USB audio). SET_INTERFACE alt 1 starts the
+ * stream with a full redraw; the vendor request MIRROR_REQ_RESYNC asks for another. bcdDevice +0.40 */
+#define MIRROR_IF 2u
+#ifndef MIRROR_MAXP
+#define MIRROR_MAXP 512u                                /* bytes per 1 ms packet (full speed: 1023 at most) */
+#endif
+#define CFG_LEN (101 + 74 * FELUCCA_CDC + 74 * FELUCCA_UAC + 3 * FELUCCA_UAC_48K + 25 * SNOOP_MIRROR)
+#define USB_NIF (2 + FELUCCA_UAC + 2 * FELUCCA_CDC + SNOOP_MIRROR)
 #if FELUCCA_CDC
 static const uint8_t DEV_DESC[18] = {18, 1, 0x00, 0x02, 0xEF, 0x02, 0x01, 64, 0x09, 0x12, 0x01, 0x00,
                                      0x01 + 0x10 * (FELUCCA_UAC + FELUCCA_UAC_48K) + UAC_BCD_AS, 0x03, 1, 2, 0, 1};   /* misc/IAD */
@@ -193,7 +203,7 @@ static const uint8_t CFG_DESC[] = {
 #define FELUCCA_USB_PID 0x0001   /* the update loader is 0x0002 */
 #endif
 static const uint8_t DEV_DESC[18] = {18, 1, 0x10, 0x01, 0, 0, 0, 64, 0x09, 0x12, FELUCCA_USB_PID & 0xFF,
-                                     FELUCCA_USB_PID >> 8, 0x00 + 0x10 * (FELUCCA_UAC + FELUCCA_UAC_48K) + UAC_BCD_AS, 0x03,
+                                     FELUCCA_USB_PID >> 8, 0x00 + 0x10 * (FELUCCA_UAC + FELUCCA_UAC_48K) + UAC_BCD_AS + 0x40 * SNOOP_MIRROR, 0x03,
                                      1, 2, 0, 1};
 static const uint8_t CFG_DESC[] = {
     9, 2, CFG_LEN & 0xFF, CFG_LEN >> 8, USB_NIF, 1, 0, 0x80, 50,
@@ -234,6 +244,11 @@ static const uint8_t CFG_DESC[] = {
 #endif
     9, 5, 0x84, 0x05, UAC_MAXP & 0xFF, UAC_MAXP >> 8, 1, 0, 0,   /* EP4 IN isochronous async, 1 ms */
     7, 0x25, 1, 0x01, 0, 0, 0,                          /* CS endpoint: sampling frequency control */
+#endif
+#if SNOOP_MIRROR
+    9, 4, MIRROR_IF, 0, 0, 0xFF, 0, 0, 0,               /* IF2 the screen mirror (vendor), alt 0: no bandwidth */
+    9, 4, MIRROR_IF, 1, 1, 0xFF, 0, 0, 0,               /* alt 1: the stream */
+    7, 5, 0x84, 0x01, MIRROR_MAXP & 0xFF, MIRROR_MAXP >> 8, 1,   /* EP4 IN isochronous, 1 ms */
 #endif
 #if FELUCCA_CDC
     8, 0x0B, CDC_IF, 2, 2, 2, 1, 0,                     /* IAD: CDC ACM (IF 2-3, 3-4) */
@@ -466,6 +481,49 @@ static void uac_rate_set(uint32_t hz)
 }
 #endif
 
+#if SNOOP_MIRROR
+#if FELUCCA_UAC || FELUCCA_CDC
+#error "SNOOP_MIRROR: EP4 is the mirror's and there is no IAD: build without FELUCCA_UAC and FELUCCA_CDC"
+#endif
+static uint8_t ep4mir[(MIRROR_MAXP + 3u) & ~3u] __attribute__((aligned(4)));
+static uint8_t mirror_alt;
+
+static void mirror_ep4_reset(void)                      /* drop a queued packet; isochronous mode (as uac_ep4_reset) */
+{
+    sie_wr(S_INDEX, 4);
+    sie_wr(S_TXCSR1, 0x48);
+    sie_wr(S_TXCSR2, 0);
+    sie_wr(S_TXCSR1, 0);
+    sie_wr(S_TXCSR2, 0x40);
+}
+
+static void mirror_stream(uint32_t alt)                 /* SET_INTERFACE, configuration, bus reset */
+{
+    mirror_alt = (uint8_t)alt;
+    if (alt)
+        mirror_redraw = 1;                              /* the viewer starts from a whole picture */
+    mirror_on = (uint8_t)alt;
+}
+
+/* TIMER5, 2 kHz: one packet per 1 ms frame while there is something to send (an idle screen sends nothing: the
+ * host's IN token finds no packet). A viewer that stops reading leaves a packet queued; the ring fills, the
+ * records are dropped (mirror.c) and the picture is redrawn when it reads again. */
+static void mirror_service(void)
+{
+    uint32_t n;
+    if (!usb.config || !mirror_on)
+        return;
+    sie_wr(S_INDEX, 4);
+    if (sie_rd(S_TXCSR1) & 0x01u)
+        return;                                         /* still queued */
+    n = mirror_packet(ep4mir, MIRROR_MAXP);
+    if (!n)
+        return;
+    fm1_usb_ep4_send(ep4mir, n);
+    sie_wr(S_TXCSR1, 0x01);                             /* TxPktRdy (and UnderRun cleared) */
+}
+#endif
+
 static void ep1_config(void)
 {
     fm1_usb_ep_txbuf(1, ep1tx);
@@ -505,6 +563,14 @@ static void ep1_config(void)
     uac_ep4_reset();
     fm1_usb_ep_enable(1u << 4);
     uac_stream(0);
+#endif
+#if SNOOP_MIRROR
+    fm1_usb_ep4_txbuf(ep4mir);
+    sie_wr(S_INDEX, 4);
+    sie_wr(S_TXMAXP, 0xFF);
+    mirror_ep4_reset();
+    fm1_usb_ep_enable(1u << 4);
+    mirror_stream(0);
 #endif
 }
 
@@ -632,6 +698,10 @@ static void ep0_service(void)
             uac_stream(0);
         uac_rate_set(UAC_RATE);                         /* a new configuration starts at 44.1 */
 #endif
+#if SNOOP_MIRROR
+        if (usb.config != 1u)
+            mirror_stream(0);
+#endif
         goto ack;
     case 0x8008:
         e0_send(&usb.config, 1, wlength);
@@ -649,10 +719,23 @@ static void ep0_service(void)
             goto ack;
         }
 #endif
+#if SNOOP_MIRROR
+        if (s[4] == MIRROR_IF && wvalue <= 1u && usb.config) {
+            mirror_ep4_reset();
+            mirror_stream(wvalue);
+            goto ack;
+        }
+#endif
         if (wvalue == 0)
             goto ack;
         goto stall;
     case 0x810A:
+#if SNOOP_MIRROR
+        if (s[4] == MIRROR_IF) {
+            e0_send(&mirror_alt, 1, wlength);
+            return;
+        }
+#endif
 #if FELUCCA_UAC
         if (s[4] == UAC_AS_IF) {
             static uint8_t alt;
@@ -670,6 +753,10 @@ static void ep0_service(void)
         uint32_t ep = s[4] & 0x0Fu, last = 1u;
 #endif
 #if FELUCCA_UAC
+        if (wvalue == 0 && s[4] == 0x84u)
+            goto ack;                                   /* isochronous: no halt, no toggle */
+#endif
+#if SNOOP_MIRROR
         if (wvalue == 0 && s[4] == 0x84u)
             goto ack;                                   /* isochronous: no halt, no toggle */
 #endif
@@ -733,6 +820,13 @@ static void ep0_service(void)
         e0_send(RATE, 3, wlength);
         return;
     }
+#endif
+#if SNOOP_MIRROR
+    case 0x4100 | MIRROR_REQ_RESYNC:                    /* vendor, to the interface: the viewer lost a packet */
+        if (wlength)
+            goto stall;
+        mirror_redraw = 1;
+        goto ack;
 #endif
     default:
         goto stall;
@@ -1300,6 +1394,9 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
         uac_stream(0);
         uac_rate_set(UAC_RATE);
 #endif
+#if SNOOP_MIRROR
+        mirror_stream(0);
+#endif
         fm1_usb_ep0_buf(ep0buf);
         sie_wr(S_INTRUSBE, 0x07);
         sie_wr(S_INTRTX1E, 0x01);
@@ -1325,6 +1422,9 @@ static void usb_poll(void)                              /* TIMER5 ISR, 2 kHz */
 #endif
 #if FELUCCA_UAC
     uac_service();
+#endif
+#if SNOOP_MIRROR
+    mirror_service();
 #endif
 }
 
