@@ -10,7 +10,7 @@
  *   'F' fill   x y w h hi lo          a rectangle of one colour
  *   'B' blit   x y w h rle...         a rectangle of pixels, row-major, w*h pixels once unpacked
  *   'E' end    (no payload)           the UI pass is over: the viewer shows what it has
- *   'S' status MIRROR_STATUS_MIN..MIRROR_STATUS_LEN bytes (version 2: the first 10; version 3: all): what the
+ *   'S' status MIRROR_STATUS_MIN..MIRROR_STATUS_LEN bytes (version 2: the first 10; version 3: 26 or more): what the
  *              keyboard is doing, for a viewer's own panels. A viewer takes the bytes it knows.
  *              flags  bit 0 DAW mode, bit 1 playing, bit 2 recording
  *              track  the selected track 0..3 (3: the drums)
@@ -27,6 +27,11 @@
  *              fbank  FADER BANK 0..3: level, filter, reverb, delay
  *              master the volume 0..127 (0xFF: unknown)
  *              batt   the battery symbol's bars 0..3
+ *              scale  2 bytes, little-endian: bit n, the note n (0 = C .. 11 = B) is in the selected track's
+ *                     scale (0: none to show, the drum track)
+ *              root   the scale's root note 0..11
+ *              bend   the pitch wheel 0..127, 64 at rest (0xFF: unknown)
+ *              mod    the mod wheel 0..127 (0xFF: unknown)
  *              Sent when it changes and with the beat; it changes no pixel.
  *
  * x, y: 0..239. w, h: 1..240. A colour is RGB565, high byte first (the panel's order).
@@ -54,7 +59,7 @@
 #define MIRROR_NO_FIRST 0xFFFFu
 #define MIRROR_BAND_PX 960u                         /* four full rows */
 #define MIRROR_STATUS_MIN 10u
-#define MIRROR_STATUS_LEN 26u
+#define MIRROR_STATUS_LEN 31u
 #define MIRROR_REC_MAX (4u + MIRROR_BAND_PX * 2u + (MIRROR_BAND_PX + 127u) / 128u + 8u)
 
 /* On the cable: USB 1209:0001, a vendor interface (class 0xFF, number 2). SET_INTERFACE alt 1 starts the

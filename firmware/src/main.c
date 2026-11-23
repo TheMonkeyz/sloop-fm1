@@ -582,6 +582,23 @@ UI_SMALL static void fm1_main(void)
             s[24] = (uint8_t)(clamp(smk_master, 0, 1023) * 127 / 1023);
 #endif
             s[25] = (uint8_t)batt_level();
+            {                                           /* the selected track's scale, as notes C..B */
+                const track_t *t = &trk[song.sel % NTRK];
+                uint32_t root = (uint32_t)((t->p[P_ROOT] % 12 + 12) % 12), m = is_drum(t) ? 0u : scale_mask(t) & 0xFFFu;
+                m = (m << root | m >> (12u - root)) & 0xFFFu;
+                s[26] = (uint8_t)m;
+                s[27] = (uint8_t)(m >> 8);
+                s[28] = (uint8_t)root;
+            }
+            s[29] = 0xFFu;
+            s[30] = 0xFFu;
+#if BOARD_SMK37
+            {                                           /* the wheels as the sounds take them (voice.c perf_*) */
+                int32_t b = perf_bend, full = (int32_t)(b >= 0 ? bend_up : bend_dn) * 4096;
+                s[29] = (uint8_t)clamp(64 + (full > 0 ? b * 63 / full : 0), 0, 127);
+                s[30] = (uint8_t)clamp(perf_modw, 0, 127);
+            }
+#endif
             mirror_status(s);
         }
         if (mirror_frame_end())                         /* the viewer lost part of the picture: all of it again */
