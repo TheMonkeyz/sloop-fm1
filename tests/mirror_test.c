@@ -950,7 +950,8 @@ static int status_cases(void)
         s[i] = (uint8_t)(0x11u * (i + 1u));
     mirror_status(s);                               /* the first: sent */
     for (r = 0; (n = take_pkt(b));) r |= deliver(b, n);
-    ok &= (r & MD_STATUS) && dec.have_status && !memcmp(dec.status, s, MIRROR_STATUS_LEN);
+    ok &= (r & MD_STATUS) && dec.have_status && dec.status_len == MIRROR_STATUS_LEN &&
+          !memcmp(dec.status, s, MIRROR_STATUS_LEN);
     mirror_status(s);                               /* the same, at once: nothing on the cable */
     ok &= take_pkt(b) == 0u;
     s[1] ^= 1u;

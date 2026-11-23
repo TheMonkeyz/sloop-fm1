@@ -10,13 +10,23 @@
  *   'F' fill   x y w h hi lo          a rectangle of one colour
  *   'B' blit   x y w h rle...         a rectangle of pixels, row-major, w*h pixels once unpacked
  *   'E' end    (no payload)           the UI pass is over: the viewer shows what it has
- *   'S' status MIRROR_STATUS_LEN bytes (version 2): what the keyboard is doing, for a viewer's own panels
+ *   'S' status MIRROR_STATUS_MIN..MIRROR_STATUS_LEN bytes (version 2: the first 10; version 3: all): what the
+ *              keyboard is doing, for a viewer's own panels. A viewer takes the bytes it knows.
  *              flags  bit 0 DAW mode, bit 1 playing, bit 2 recording
  *              track  the selected track 0..3 (3: the drums)
  *              low    the MIDI note of the lowest key (the octave buttons move it)
  *              bpm    2 bytes, little-endian: the tempo x 10
  *              ch[4]  the MIDI channel 0..15 of tracks 1..4 (0xFF: the track's MIDI is off)
  *              dawch  DAW mode's MAIN channel 0..15
+ *              head   the playhead in the 16 steps shown, 0..15 (0xFF: stopped)
+ *              plen   how many of those 16 steps the selected track has, 1..16
+ *              steps  2 bytes, little-endian: bit i, step i has something to play
+ *              page   which 16 steps: page x 16 (the playhead's while playing)
+ *              dial[4]  dials 1..4 on the page shown, 0..127 of their range (0xFF: not a value there)
+ *              fader[4] the faders' positions 0..127 (0xFF: no faders)
+ *              fbank  FADER BANK 0..3: level, filter, reverb, delay
+ *              master the volume 0..127 (0xFF: unknown)
+ *              batt   the battery symbol's bars 0..3
  *              Sent when it changes and with the beat; it changes no pixel.
  *
  * x, y: 0..239. w, h: 1..240. A colour is RGB565, high byte first (the panel's order).
@@ -37,13 +47,14 @@
 #ifndef MIRROR_PROTO_H
 #define MIRROR_PROTO_H
 
-#define MIRROR_VER 2u                               /* 2: the 'S' record */
+#define MIRROR_VER 3u                               /* 2: the 'S' record; 3: its steps, dials, faders */
 #define MIRROR_W 240u
 #define MIRROR_H 240u
 #define MIRROR_PKT_HDR 4u
 #define MIRROR_NO_FIRST 0xFFFFu
 #define MIRROR_BAND_PX 960u                         /* four full rows */
-#define MIRROR_STATUS_LEN 10u
+#define MIRROR_STATUS_MIN 10u
+#define MIRROR_STATUS_LEN 26u
 #define MIRROR_REC_MAX (4u + MIRROR_BAND_PX * 2u + (MIRROR_BAND_PX + 127u) / 128u + 8u)
 
 /* On the cable: USB 1209:0001, a vendor interface (class 0xFF, number 2). SET_INTERFACE alt 1 starts the

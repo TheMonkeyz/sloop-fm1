@@ -62,10 +62,14 @@ static int md_apply(mirror_dec_t *d, int *res)
         return 1;
     }
     if (d->type == 'S') {
-        if (d->len != MIRROR_STATUS_LEN)
+        uint8_t s[MIRROR_STATUS_LEN] = {0};
+        uint32_t k = d->len < MIRROR_STATUS_LEN ? d->len : MIRROR_STATUS_LEN;   /* (a longer one: a later version) */
+        if (d->len < MIRROR_STATUS_MIN)
             return 0;
-        if (!d->have_status || memcmp(d->status, p, MIRROR_STATUS_LEN)) {
-            memcpy(d->status, p, MIRROR_STATUS_LEN);
+        memcpy(s, p, k);
+        if (!d->have_status || d->status_len != k || memcmp(d->status, s, MIRROR_STATUS_LEN)) {
+            memcpy(d->status, s, MIRROR_STATUS_LEN);
+            d->status_len = (uint8_t)k;
             d->have_status = 1;
             *res |= MD_STATUS;
         }

@@ -16,7 +16,7 @@ typedef struct {
     uint8_t rec[MIRROR_REC_MAX];
     uint32_t frames, recs, lost, bad;               /* 'E' records, records applied, gaps, malformed records */
     uint8_t status[MIRROR_STATUS_LEN];              /* the last 'S' record (mirror_proto.h), have_status once one came */
-    uint8_t have_status;
+    uint8_t have_status, status_len;                /* how many of its bytes the device sent (the rest: 0) */
 } mirror_dec_t;
 
 /* results of md_packet, or-ed */

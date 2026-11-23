@@ -521,6 +521,67 @@ UI_SMALL static void fm1_main(void)
             s[4] = (uint8_t)(bpm >> 8);
             for (i = 0; i < NTRK; i++)
                 s[5u + i] = (uint8_t)trk_midi_ch(i);
+            {                                           /* the 16 steps shown: the playhead's page while playing */
+                const track_t *t = &trk[song.sel % NTRK];
+                uint32_t len = trk_len(t), at = t->seq_idx % len, pg = song.playing ? at / 16u : ui.step_page, m = 0;
+                if (pg * 16u >= len)
+                    pg = 0;
+                for (i = 0; i < 16u && pg * 16u + i < len; i++)
+                    m |= (uint32_t)(trk_step_on(t, pg * 16u + i) != 0) << i;
+                s[10] = (uint8_t)(song.playing ? at % 16u : 0xFFu);
+                s[11] = (uint8_t)i;
+                s[12] = (uint8_t)m;
+                s[13] = (uint8_t)(m >> 8);
+                s[14] = (uint8_t)pg;
+            }
+            for (i = 0; i < 4u; i++) {                  /* the dials, as the screen's four columns show them
+                                                         * (ui_draw.c draw_columns): HOME, TRACKS, a page's values */
+                const page_t *pg = cur_page();
+                const track_t *t = &trk[song.sel % NTRK];
+                const param_desc_t *d = 0;
+                int16_t *vp = 0;
+                int32_t v = 0;
+                s[15u + i] = 0xFFu;
+                if ((s[0] & 1u) || ui.menu)
+                    continue;
+                if (ui.home) {
+                    d = home_param(i, &vp);
+                } else if (is_drum(t) && !page_for_drum(pg)) {
+                    continue;
+                } else if (pg->scope == SC_TRK) {       /* TRACK LEVEL LEN PAN */
+                    if (i == 0u) {
+                        s[15] = (uint8_t)(song.sel * 127u / (NTRK - 1u));
+                        continue;
+                    }
+                    if (i == 1u) {
+                        s[16] = (uint8_t)(t->p[P_MUTE] ? 0u : trk_level(song.sel) & 127u);
+                        continue;
+                    }
+                    d = &TP[i == 2u ? P_SLEN : P_PAN];
+                    v = t->p[i == 2u ? P_SLEN : P_PAN];
+                } else if (pg->scope == SC_STEP || pg->id[i] == 0xFFu) {
+                    continue;
+                } else {
+                    d = page_desc(pg, i, &vp);
+                }
+                if (vp)
+                    v = *vp;
+                else if (!(pg->scope == SC_TRK && !ui.home))
+                    continue;
+                if (d && d->max > d->min)
+                    s[15u + i] = (uint8_t)(clamp(v - d->min, 0, d->max - d->min) * 127 / (d->max - d->min));
+            }
+            for (i = 0; i < 4u; i++)
+                s[19u + i] = 0xFFu;
+            s[23] = 0;
+            s[24] = 0xFFu;
+#if BOARD_SMK37
+            for (i = 0; i < 4u; i++)
+                s[19u + i] = (uint8_t)(fm1_in.fader[i] & 127u);
+            s[23] = (uint8_t)(smk_fbank & 3u);
+            s[24] = (uint8_t)(clamp(smk_master, 0, 1023) * 127 / 1023);
+#endif
+            s[25] = (uint8_t)batt_level();
             mirror_status(s);
         }
         if (mirror_frame_end())                         /* the viewer lost part of the picture: all of it again */
