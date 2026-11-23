@@ -10,6 +10,14 @@
  *   'F' fill   x y w h hi lo          a rectangle of one colour
  *   'B' blit   x y w h rle...         a rectangle of pixels, row-major, w*h pixels once unpacked
  *   'E' end    (no payload)           the UI pass is over: the viewer shows what it has
+ *   'S' status MIRROR_STATUS_LEN bytes (version 2): what the keyboard is doing, for a viewer's own panels
+ *              flags  bit 0 DAW mode, bit 1 playing, bit 2 recording
+ *              track  the selected track 0..3 (3: the drums)
+ *              low    the MIDI note of the lowest key (the octave buttons move it)
+ *              bpm    2 bytes, little-endian: the tempo x 10
+ *              ch[4]  the MIDI channel 0..15 of tracks 1..4 (0xFF: the track's MIDI is off)
+ *              dawch  DAW mode's MAIN channel 0..15
+ *              Sent when it changes and with the beat; it changes no pixel.
  *
  * x, y: 0..239. w, h: 1..240. A colour is RGB565, high byte first (the panel's order).
  * A blit never holds more than MIRROR_BAND_PX pixels (the firmware cuts a blit into bands of whole rows),
@@ -29,12 +37,13 @@
 #ifndef MIRROR_PROTO_H
 #define MIRROR_PROTO_H
 
-#define MIRROR_VER 1u
+#define MIRROR_VER 2u                               /* 2: the 'S' record */
 #define MIRROR_W 240u
 #define MIRROR_H 240u
 #define MIRROR_PKT_HDR 4u
 #define MIRROR_NO_FIRST 0xFFFFu
 #define MIRROR_BAND_PX 960u                         /* four full rows */
+#define MIRROR_STATUS_LEN 10u
 #define MIRROR_REC_MAX (4u + MIRROR_BAND_PX * 2u + (MIRROR_BAND_PX + 127u) / 128u + 8u)
 
 /* On the cable: USB 1209:0001, a vendor interface (class 0xFF, number 2). SET_INTERFACE alt 1 starts the

@@ -497,6 +497,32 @@ UI_SMALL static void fm1_main(void)
 #endif
         ui_draw();
 #if SNOOP_MIRROR
+        {                                               /* the viewer's panels (mirror_proto.h 'S') */
+            uint8_t s[MIRROR_STATUS_LEN];
+            uint32_t i, bpm = (uint32_t)song.g[G_BPM] * 10u;
+            int32_t low = 48 + 12 * (int32_t)song.octave;
+            if (!is_drum(&trk[song.sel % NTRK])) {       /* the lowest key's note on the selected track (scale, root) */
+                uint32_t n0 = kb_map(&trk[song.sel % NTRK], 0);
+                if (n0 <= 127u)
+                    low = (int32_t)n0;
+            }
+            s[0] = (uint8_t)((song.playing ? 2u : 0u) | (song.rec ? 4u : 0u));
+            s[9] = 0;
+#if BOARD_SMK37
+            if (daw_on) {
+                s[0] |= 1u;
+                low = (int32_t)DAW_NOTE0 + 12 * (int32_t)daw_oct;
+            }
+            s[9] = (uint8_t)((daw_ch - 1u) & 15u);
+#endif
+            s[1] = song.sel;
+            s[2] = (uint8_t)clamp(low, 0, 127);
+            s[3] = (uint8_t)bpm;
+            s[4] = (uint8_t)(bpm >> 8);
+            for (i = 0; i < NTRK; i++)
+                s[5u + i] = (uint8_t)trk_midi_ch(i);
+            mirror_status(s);
+        }
         if (mirror_frame_end())                         /* the viewer lost part of the picture: all of it again */
             ui.force = 1;
 #endif

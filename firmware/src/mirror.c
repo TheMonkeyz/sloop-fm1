@@ -200,6 +200,33 @@ static void mirror_blit(uint32_t x, uint32_t y, uint32_t w, uint32_t h, const ui
     }
 }
 
+/* the keyboard's state for the viewer's panels (mirror_proto.h 'S'), before mirror_frame_end: sent when it
+ * changed, and with every beat (a lost packet is put right within MIRROR_BEAT_MS). No room: the next pass. */
+static uint8_t ms_last[MIRROR_STATUS_LEN], ms_sent;
+static uint32_t ms_beat;
+static void mirror_status(const uint8_t *s)
+{
+    uint32_t i, now, same = ms_sent;
+    if (!mirror_on) {
+        ms_sent = 0;
+        return;
+    }
+    now = MIRROR_MS();
+    for (i = 0; same && i < MIRROR_STATUS_LEN; i++)
+        same = s[i] == ms_last[i];
+    if (same && now - ms_beat < MIRROR_BEAT_MS)
+        return;
+    mr_begin('S');
+    for (i = 0; i < MIRROR_STATUS_LEN; i++)
+        mr_put(s[i]);
+    if (!mr_end())
+        return;
+    for (i = 0; i < MIRROR_STATUS_LEN; i++)
+        ms_last[i] = s[i];
+    ms_sent = 1;
+    ms_beat = now;
+}
+
 /* after a UI pass. Returns 1 when the caller must redraw everything (ui.force): the viewer asked, or
  * records were dropped and the ring has room again */
 static int mirror_frame_end(void)

@@ -933,6 +933,43 @@ static int protocol_cases(void)
 }
 static int proto_child(void *a) { (void)a; rep = stdout; return protocol_cases(); }
 
+/* the 'S' record: what mirror_status sends reaches the decoder, once per change, and touches no pixel */
+static int status_cases(void)
+{
+    uint8_t b[1024], s[MIRROR_STATUS_LEN];
+    uint32_t i, n, k, wrong;
+    int r, ok = 1;
+    mt.P = 196u;
+    md_init(&dec);
+    mirror_on = 1;
+    mirror_redraw = 0;
+    mirror_fill(0, 0, 240, 240, 0x07E0u);
+    mirror_frame_end();
+    while ((n = take_pkt(b))) deliver(b, n);
+    for (i = 0; i < MIRROR_STATUS_LEN; i++)
+        s[i] = (uint8_t)(0x11u * (i + 1u));
+    mirror_status(s);                               /* the first: sent */
+    for (r = 0; (n = take_pkt(b));) r |= deliver(b, n);
+    ok &= (r & MD_STATUS) && dec.have_status && !memcmp(dec.status, s, MIRROR_STATUS_LEN);
+    mirror_status(s);                               /* the same, at once: nothing on the cable */
+    ok &= take_pkt(b) == 0u;
+    s[1] ^= 1u;
+    mirror_status(s);                               /* a change: sent */
+    for (r = 0; (n = take_pkt(b));) r |= deliver(b, n);
+    ok &= (r & MD_STATUS) && !memcmp(dec.status, s, MIRROR_STATUS_LEN) && !(r & MD_RESYNC);
+    for (wrong = 0, k = 0; k < 240u * 240u; k++)
+        wrong += dec.shadow[k] != 0x07E0u;
+    ok &= !wrong && !dec.bad;
+    mirror_on = 0;
+    mirror_status(s);                               /* the viewer left: the next one gets it again */
+    mirror_on = 1;
+    mirror_status(s);
+    ok &= take_pkt(b) != 0u;
+    fprintf(rep, "mirror: status ('S'): round trip, once per change, again for a new viewer, no pixel touched   %s\n", ok ? "ok" : "FAIL");
+    return !ok;
+}
+static int status_child(void *a) { (void)a; rep = stdout; return status_cases(); }
+
 /* a blit with the interrupts off (fm1_fault's crash screen draws text boxes so, main.c): the clock and the reader
  * stand still; with the ring full mirror_blit must still return */
 static int frozen_child(void *a)
@@ -1469,6 +1506,7 @@ int main(int argc, char **argv)
         fails += child(enc_child, &n);
     }
     fails += child(proto_child, 0);
+    fails += child(status_child, 0);
     fails += child(ui_stall, 0);
     fails += child(frozen_child, 0);
     {

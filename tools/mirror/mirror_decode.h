@@ -15,10 +15,13 @@ typedef struct {
     uint16_t len, got;
     uint8_t rec[MIRROR_REC_MAX];
     uint32_t frames, recs, lost, bad;               /* 'E' records, records applied, gaps, malformed records */
+    uint8_t status[MIRROR_STATUS_LEN];              /* the last 'S' record (mirror_proto.h), have_status once one came */
+    uint8_t have_status;
 } mirror_dec_t;
 
 /* results of md_packet, or-ed */
 #define MD_FRAME 1                                  /* an 'E' arrived: show the picture (md_take_dirty) */
+#define MD_STATUS 4                                 /* an 'S' arrived and differs from the last: d->status */
 #define MD_RESYNC 2                                 /* data was lost: ask the device for a full redraw */
 
 void md_init(mirror_dec_t *d);

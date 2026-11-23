@@ -61,6 +61,16 @@ static int md_apply(mirror_dec_t *d, int *res)
         *res |= MD_FRAME;
         return 1;
     }
+    if (d->type == 'S') {
+        if (d->len != MIRROR_STATUS_LEN)
+            return 0;
+        if (!d->have_status || memcmp(d->status, p, MIRROR_STATUS_LEN)) {
+            memcpy(d->status, p, MIRROR_STATUS_LEN);
+            d->have_status = 1;
+            *res |= MD_STATUS;
+        }
+        return 1;
+    }
     if (d->len < 4u)
         return 0;
     x = p[0];
@@ -122,7 +132,7 @@ int md_packet(mirror_dec_t *d, const uint8_t *pkt, uint32_t len)
 {
     int res = 0;
     uint32_t first, pos = MIRROR_PKT_HDR;
-    if (len <= MIRROR_PKT_HDR || pkt[1] != MIRROR_VER)
+    if (len <= MIRROR_PKT_HDR || pkt[1] < 1u || pkt[1] > MIRROR_VER)    /* (version 1: the same stream, no 'S') */
         return 0;
     first = (uint32_t)pkt[2] | (uint32_t)pkt[3] << 8;
     if (d->have_seq && pkt[0] != (uint8_t)(d->seq + 1u)) {
@@ -156,7 +166,7 @@ int md_packet(mirror_dec_t *d, const uint8_t *pkt, uint32_t len)
             if (++d->hn < 3u)
                 continue;
             d->got = 0;
-            if ((d->type != 'F' && d->type != 'B' && d->type != 'E') || d->len > MIRROR_REC_MAX)
+            if ((d->type != 'F' && d->type != 'B' && d->type != 'E' && d->type != 'S') || d->len > MIRROR_REC_MAX)
                 goto bad;
         }
         if (d->got < d->len) {
