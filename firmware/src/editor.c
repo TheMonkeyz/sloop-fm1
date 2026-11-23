@@ -682,6 +682,60 @@ UI_SMALL static int ed_backup(uint32_t cmd, const uint8_t *a, uint32_t na)   /* 
 
 #include "editor_live.c"                              /* v12: the LIVE page (77) */
 
+#if SNOOP_MIRROR
+/* Snoop37's viewer (its SONG EDIT page, esp32-p4-snoopview): the song order, read and changed an entry at a time,
+ * as the SONG screen's knobs change it (ui_song.c): in RAM, only while stopped; op 4 saves it as that screen's SAVE
+ * does. Request: op, then its arguments; reply: op, rc (0 ok, 1 arguments, 3 stop first), the entries in use, then
+ * ARR_STEPS x (section 0..3, bars).
+ *   0 read   1 set: entry, section 0..3, bars 1..64   2 insert a copy of an entry after it   3 delete an entry
+ *   4 save (arrangement_save) */
+#define ED_SONG 100u
+UI_SMALL static void ed_song(const uint8_t *a, uint32_t na)
+{
+    uint32_t op = a[0], i = na >= 2u ? a[1] : 0xFFu, rc = 0, k;
+    if (op >= 1u && op <= 4u && (song.playing || transport_req)) {
+        rc = 3;
+    } else if (op == 1u) {
+        if (na >= 4u && i < arrangement.count && a[2] < ARR_SCENES && a[3] >= 1u && a[3] <= 64u) {
+            arrangement.entry[i].scene = a[2];
+            arrangement.entry[i].bars = a[3];
+        } else {
+            rc = 1;
+        }
+    } else if (op == 2u) {
+        if (i < arrangement.count && arrangement.count < ARR_STEPS) {
+            for (k = arrangement.count; k > i + 1u; k--)
+                arrangement.entry[k] = arrangement.entry[k - 1u];
+            arrangement.entry[i + 1u] = arrangement.entry[i];
+            arrangement.count++;
+        } else {
+            rc = 1;
+        }
+    } else if (op == 3u) {
+        if (i < arrangement.count && arrangement.count > 1u) {
+            for (k = i; k + 1u < arrangement.count; k++)
+                arrangement.entry[k] = arrangement.entry[k + 1u];
+            arrangement.count--;
+        } else {
+            rc = 1;
+        }
+    } else if (op == 4u) {
+        arrangement_save();
+    } else if (op) {
+        rc = 1;
+    }
+    if (op && !rc)
+        ui.force = 1;
+    ed_b(op);
+    ed_b(rc);
+    ed_b(arrangement.count);
+    for (k = 0; k < ARR_STEPS; k++) {
+        ed_b(arrangement.entry[k].scene & 3u);
+        ed_b(arrangement.entry[k].bars & 127u);
+    }
+}
+#endif
+
 UI_SMALL static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes between F0 and F7 */
 {
     uint32_t cmd = f[3], i;
@@ -714,6 +768,13 @@ UI_SMALL static void ed_handle(const uint8_t *f, uint32_t n)   /* f: the bytes b
             return;
         ed_live(a, na);
         break;
+#if SNOOP_MIRROR
+    case ED_SONG:
+        if (na < 1u)
+            return;
+        ed_song(a, na);
+        break;
+#endif
     case ED_INFO:
         ed_str("FELUCCA " FELUCCA_VERSION, 24);
         ed_b(NENGINES);
