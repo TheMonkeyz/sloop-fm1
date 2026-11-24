@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Snoop37 mirror – Web Installer</title>
+<meta name="description" content="Snoop37 for the M-Vave SMK-37 Pro, with the screen mirror for snoopview: install it from your browser.">
+<meta name="theme-color" content="#000000">
+<style>
+:root{--bg:#000;--card:#0e131a;--line:#1d2631;--line2:#2a3542;--text:#f2f5f8;--body:#c3ccd6;--dim:#8e9aa9;
+  --accent:#ff9a3d;--link:#5ab0ff;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--body);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1,h2{color:var(--text);font-weight:600;margin:0}
+h1{font-size:clamp(36px,6vw,56px);line-height:1.05;letter-spacing:-.02em;margin-bottom:14px}
+h2{font-size:20px;margin-bottom:12px}
+p{margin:0 0 12px}
+a{color:var(--link);text-underline-offset:3px}
+b{color:var(--text);font-weight:600}
+code{font:14px ui-monospace,Consolas,monospace;color:var(--text);background:#1a222c;border-radius:5px;padding:1px 6px}
+:focus-visible{outline:2px solid var(--link);outline-offset:3px;border-radius:6px}
+.wrap{max-width:860px;margin:0 auto;padding:0 24px 64px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0}
+.brand{display:inline-flex;align-items:center;gap:10px;color:var(--text);font-size:15px}
+.brand::before{content:"";width:12px;height:12px;background:var(--accent);box-shadow:0 0 0 3px #000,0 0 0 4px #384452}
+.gh{font-size:14px;color:var(--dim);text-decoration:none;padding:6px 12px;border:1px solid var(--line2);border-radius:999px}
+.gh:hover{color:var(--text)}
+.eyebrow{display:block;color:var(--accent);font-size:13px;letter-spacing:.12em;text-transform:uppercase;margin:28px 0 10px}
+.lead{font-size:18px;max-width:36em;margin-bottom:28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px 22px 18px;margin-bottom:18px}
+.install{border-color:rgba(255,154,61,.45);box-shadow:0 30px 60px -40px rgba(255,154,61,.5)}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;padding:14px 24px;border-radius:14px;
+  color:#1d0f00;background:linear-gradient(180deg,#ffb469,#ff9a3d);font:600 17px/1.2 inherit;text-decoration:none}
+.btn:hover{filter:brightness(1.07)}
+.ver{color:var(--dim);font-size:14px;margin-bottom:14px}
+.note{font-size:14px;color:var(--dim);margin:14px 0 0}
+.warn{border-left:3px solid #ffc83d;padding:9px 12px;background:#1f1a0c;border-radius:8px;color:#f4e3b5;font-size:14px;
+  margin:14px 0 0}
+ol,ul{margin:0;padding-left:1.3em}
+li{margin-bottom:8px}
+li:last-child{margin-bottom:0}
+footer{color:var(--dim);font-size:14px;margin-top:28px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="brand">Snoop37 mirror</span>
+    <a class="gh" href="https://github.com/TheMonkeyz/sloop-fm1/tree/snoop37-mirror">GitHub</a>
+  </header>
+
+  <main>
+    <span class="eyebrow">Web installer</span>
+    <h1>Snoop37, with its screen on the USB cable</h1>
+    <p class="lead">This is Snoop37 (SLOOP for the M-Vave SMK-37 Pro) built with the screen mirror. It plays the same.
+      It also sends its screen on the USB cable, for a <a href="https://themonkeyz.github.io/p4-snoopview/">snoopview</a>
+      screen.</p>
+
+    <section class="card install" aria-labelledby="h-install">
+      <h2 id="h-install">Install on the keyboard</h2>
+      <p class="ver">Snoop37 <b>2.8.5</b> with the mirror (<code>SNOOP_MIRROR=1</code>), for the <b>SMK-37 Pro</b></p>
+      <a class="btn" href="webapp/installer/">Open the installer</a>
+      <p class="note">The installer page is SLOOP's own page. Its text says "FM-1": it is the same installer, and this
+        package goes only on an SMK-37 Pro.</p>
+      <p class="warn">Experimental firmware, not from M-Vave, no warranty. You install it at your own risk.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-steps">
+      <h2 id="h-steps">Steps</h2>
+      <ol>
+        <li>Use Chrome or Edge on a computer.</li>
+        <li>Connect the SMK-37 Pro to the computer with a USB data cable. Close other apps that use MIDI.</li>
+        <li>Click <b>Open the installer</b>, then <b>Install</b>. Let the browser use the MIDI devices.</li>
+        <li>Do not unplug the cable while it writes. The keyboard restarts when it is done.</li>
+        <li>Connect the keyboard to the snoopview board's <b>"High speed USB"</b> port.</li>
+      </ol>
+      <p class="note">Projects, presets, samples and settings stay on the keyboard.</p>
+    </section>
+
+    <section class="card" aria-labelledby="h-back">
+      <h2 id="h-back">To go back</h2>
+      <ul>
+        <li>The usual Snoop37, without the mirror: <a href="https://genkigenki.github.io/smk37/">genkigenki.github.io/smk37</a>.</li>
+        <li>The official firmware: M-Vave's own updater, M-UPGRADE, with the official package for your model.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>Snoop37 is by genkigenki, on SLOOP by isod89 and Felucca by Leo Kuroshita. The mirror is a fork:
+    <a href="https://github.com/TheMonkeyz/sloop-fm1/tree/snoop37-mirror">the source</a> (GPL-3.0). Not affiliated with
+    M-Vave.</footer>
+</div>
+</body>
+</html>
